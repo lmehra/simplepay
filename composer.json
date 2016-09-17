@@ -1,0 +1,20 @@
+{
+    "name": "mansa/simplepay",
+    "description": "a simplepay library for payment",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel"],
+    "authors": [
+        {
+            "name": "mansa",
+            "email": "info@mansainfotech.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Mansa\\Simplepay\\":"src/"
+        }
+    }
+}
