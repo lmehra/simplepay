@@ -1,9 +1,8 @@
 <?php namespace Mansa\Simplepay\Exceptions;
 
 use Mansa\Simplepay\Exceptions\Exception;
-use Mansa\Simplepay\Exceptions\ExceptionInterface;
 
-class PaymentGatewayVerificationFailedException extends Exception Implements ExceptionInterface
+class PaymentGatewayVerificationFailedException extends Exception
 {
     /*
     * @vars

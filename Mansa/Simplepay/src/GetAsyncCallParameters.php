@@ -55,15 +55,6 @@ class GetAsyncCallParameters{
 	public function setPaymentType($type){
 		return $this->paymentType = $type;
 	}
-	public function setBankAccountBic($bic){
-		return $this->bankAccount_bic = $bic;
-	}
-	public function setBankAccountIBan($iBan){
-		return $this->bankAccount_iban = $iBic;
-	}
-	public function setBankAccountCountry($country){
-		return $this->bankAccount_country = $country;
-	}
 	public function setShopperResultUrl($resultUrl){
 		return $this->shopperResultUrl = $resultUrl;
 	}
@@ -78,15 +69,6 @@ class GetAsyncCallParameters{
 	}
 	public function getPaymentType(){
 		return $this->paymentType;
-	}
-	public function getBankAccountBic(){
-		return $this->bankAccount_bic;
-	}
-	public function getBankAccountIBan(){
-		return $this->bankAccount_iban;
-	}
-	public function getBankAccountCountry(){
-		return $this->bankAccount_country;
 	}
 	public function getShopperResultUrl(){
 		return $this->shopperResultUrl;

@@ -7,7 +7,8 @@ class ResultCheck{
 	
 	public $endpoint;
 	public function __construct(){
-		$this->endpoint = 'https://test.oppwa.com/v1/';//makePayment::getEndpoint();
+        $getVar = new makePayment('');
+		$this->endpoint = $getVar::getEndpoint()."v1/";
 	}
 
 	/*
@@ -48,7 +49,7 @@ class ResultCheck{
 	*	Method to check the result status via result code via result code return from simplepay API
 	*
     */
-    function checkResult($resultCode){ 
+    function checkResult($resultCode=false){ 
         try{
             makePayment::ValidateCheckResult($resultCode);
         	//get the regax for checking result status
@@ -69,16 +70,7 @@ class ResultCheck{
             }
         }
         catch(VariableValidationException $e){
-
-            $return = array(
-                "message"=>$e->getMessage(),
-                "code"=>$e->getCode(),
-                "file"=>$e->getFile(),
-                "line"=>$e->getLine(),
-                );
-            
-            var_dump($return);
-            die;
+            echo $e->getMessage();die;
         }
     }
 }

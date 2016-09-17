@@ -11,15 +11,16 @@ use BadMethodCallException;
 
 class makePayment{
 	
-	static protected $testEndpoint = "https://test.oppwa.com/";
-	static protected $liveEndpoint = "https://oppwa.com/";
-	static protected $verison = 'v1';
+	static protected $testEndpoint;
+	static protected $liveEndpoint;
+	static protected $version;
 	static protected $api_ = '/payments';
-	static private $env = 'test';//live
+	static private $env;
 	static private $url ='';
 	static private $endpoint;
 	static private $params = [];
 	static private $reqestObject = [];
+	static private $ssl_verifier;
 
 	/*
 	* Valid brands are Visa (VISA), MasterCard (MASTER) and American Express (AMEX)
@@ -32,9 +33,15 @@ class makePayment{
 	static private $validAsyncPaymentBrand = ['ALIPAY',"CHINAUNIONPAY"];
 
 	public function __construct($reqestObject){
-		$defaltParameters = new GetDefaultParameters();
+		//$defaltParameters = new GetDefaultParameters();
+		
 		self::$reqestObject = $reqestObject;
-		self::$env = $defaltParameters->environment;
+		//self::$env = $defaltParameters->environment;
+		self::$testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
+		self::$liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
+		self::$env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
+		self::$version = env('SIMPLEPAY_VERSION',config("simplepay.version"));
+		self::$ssl_verifier = self::$env == 'live'?true:false;
 		self::getEndpoint();
 		self::getUrl();
 	}
@@ -46,7 +53,7 @@ class makePayment{
 		return self::$endpoint;
 	}
 	static function getAPIVersion(){
-		return self::$verison;
+		return self::$version;
 	}
 
  	/*
@@ -55,7 +62,7 @@ class makePayment{
     * send 'test url' for test environment and 'live url' for live environment
     */
     static function getUrl(){
-        self::$url = self::$endpoint.self::$verison.self::$api_;
+        self::$url = self::$endpoint.self::$version.self::$api_;
         return self::$url;
     }
 	static function getTestEndpoint(){
@@ -65,7 +72,7 @@ class makePayment{
 		return self::$liveEndpoint;
 	}
 	static function getVersion(){
-		return self::$verison;
+		return self::$version;
 	}
 	static function getApiPath(){
 		return self::$api_;
@@ -79,8 +86,8 @@ class makePayment{
 	static function setLiveEndpoint($liveEndpoint){
 		return self::$liveEndpoint = $liveEndpoint;
 	}
-	static function setVerison($verison){
-		return self::$verison = $verison;
+	static function setVersion($version){
+		return self::$version = $version;
 	}
 	static function setApiPath($api_url){
 		return self::$api_ = $api_url;
@@ -192,18 +199,18 @@ The next step is to redirect the account holder. To do this you must parse the '
 		return self::curlCustomRequest($url);
     }
 
-	/*
+	/**
 	* Method to make pust curl call
 	* Requires:
-	* @url
-	* @data
+	* @param string url
+	* @param string data
 	*/
     static function postCurl($url, $data){
     	$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -213,11 +220,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 		return $responseData;
     }
 
-    /*
+    /**
     * Common curl method to send custom requests
     * Requires:
-	* @url
-	* @requestType: default is false
+	* @param string url
+	* @param string requestType [default is false]
     */
     static function curlCustomRequest($url,$requestType = false){
     	$request = 'GET';
@@ -227,7 +234,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     	$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -238,19 +245,19 @@ The next step is to redirect the account holder. To do this you must parse the '
     }
 
 	//----------------- tokenization ---------------------------
-    /*
+    /**
 	* Register user's card for tokenization ( No payment required )
 	* Contrary to the registration as part of a payment, you directly receive a registration object in  * your response. Therefore the ID to reference this data during later payments is the value of field * id.
 	* Requires:
-	* @userId
-	* @password
-	* @entityId
-	* @paymentBrand
-	* @cardNumber
-	* @cardHolder
-	* @cardExpiryMonth
-	* @cardExpiryYear
-	* @cardcvv
+	* @param string userId
+	* @param string password
+	* @param string entityId
+	* @param string paymentBrand
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param int cardcvv
     */
     static function storeStandAloneData($syncParam){
     	  //check if the payment brand is valid
@@ -468,7 +475,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 
 			The information that you might want to store, per customer, in order to execute a One-Click payment includes:
 
-			    registration.id (token): You can use 'storeStandAloneData' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
+			    registration.id (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
 			    account brand: brand of customer's card 
 			    last four digits of account number
 			    expiry date (if applicable)
@@ -477,7 +484,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 			Create a form, to show user's all stored cards (You need to create form similar to this  https://docs.simplepays.com/sites/default/files/one-click-checkout.png) and show the list of all the cards you have stored. You can take example of html from page "https://docs.simplepays.com/tutorials/server-to-server/one-click-payment-guide".
 
 		Step 3: Send Payment
-		 	When user click on pay button use method 'OneClickSendPayment' with the mentioned paramteres to complete the payment procedure.
+		 	When user click on pay button use method 'makeOneClickPayment' with the mentioned paramteres to complete the payment procedure.
 	*/
 	
 	/**
@@ -885,7 +892,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     static function getAsyncPaymentStatus($param){
     	$responseJson = self::getAsynPaymentStatus($param);
     	$response = json_decode($responseJson,true);
-    	
+
     	if(!empty($response['result']['code']))
     	{
     		$checkResult = new ResultCheck();
@@ -941,7 +948,6 @@ The next step is to redirect the account holder. To do this you must parse the '
 			throw new PaymentGatewayVerificationFailedException("No variables found");
 		}
 		elseif ( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->registrationId) || empty($params->currency) || empty($params->amount) || empty($params->paymentType) ) {
-			# code...
 			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Variable");
 		}
 		else

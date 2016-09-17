@@ -1,9 +1,8 @@
 <?php namespace Mansa\Simplepay\Exceptions;
 
 use Mansa\Simplepay\Exceptions\Exception;
-use Mansa\Simplepay\Exceptions\ExceptionInterface;
 
-class VariableValidationException extends Exception Implements ExceptionInterface
+class VariableValidationException extends Exception
 {
 	/*
 	* @vars
