@@ -33,10 +33,7 @@ class makePayment{
 	static private $validAsyncPaymentBrand = ['ALIPAY',"CHINAUNIONPAY"];
 
 	public function __construct($reqestObject){
-		//$defaltParameters = new GetDefaultParameters();
-		
 		self::$reqestObject = $reqestObject;
-		//self::$env = $defaltParameters->environment;
 		self::$testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
 		self::$liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
 		self::$env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
