@@ -1,6 +1,9 @@
 # Simplepay:
 Its a server-to-server Simplepay payment gateway library.
 
+# Install using composer:
+composer require mansa/simplepay
+
 #Simplepay server-to-server payment API note:
 NOTE: You should be fully PCI compliant if you wish to perform an initial payment request server-to-server (as it requires that you collect the card data). If you are not fully PCI compliant, you can use Simplepay.js to collect the payment data securely.
 
