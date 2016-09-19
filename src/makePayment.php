@@ -2,11 +2,11 @@
 
 use Mansa\Simplepay\GetSyncCallParameters;
 use Mansa\Simplepay\GetAsyncCallParameters;
-use Mansa\Simplepay\Controllers\SimplepayController;
 use Mansa\Simplepay\Exceptions\VariableValidationException;
 use Mansa\Simplepay\Exceptions\PaymentGatewayVerificationFailedException;
 use Mansa\Simplepay\Exceptions\UnknownPaymentGatewayException;
 use Mansa\Simplepay\ResultCheck;
+use Mansa\Simplepay\SimplepayResponse;
 use BadMethodCallException;
 
 class makePayment{
@@ -347,46 +347,14 @@ The next step is to redirect the account holder. To do this you must parse the '
 				$checkResult = new ResultCheck();    	
 		    	$result = $checkResult->checkResult($response['result']['code']);
 		    	$registrationId = !empty($response['id'])?$response['id']:null;
-		    	if($result['state'] == 1)  //success
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "registrationId"=>$registrationId,
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        elseif($result['state'] == 2 ) //pending
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "registrationId"=>$registrationId,
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        else //rejections
-		        {
-		            $return = array(
-		                "isSuccess"=>false,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "registrationId"=>$registrationId,
-		                "crud"=>$responseJson,
-		                );
-		        }
+
+		    	$response_ = new SimplepayResponse($responseJson, $result['state'], array("registrationId"=>$registrationId));
+		    	$return = 	$response_->getResponse();
 			}
 			else
 			{
-				$return = array(
-		            "isSuccess"=>false,
-		            "message"=>"Failed to receive response from API",
-		            "code"=>"--",
-		            "registrationId"=>$registrationId,
-		            "crud"=>$responseJson,
-		            );
+				$response_ = new SimplepayResponse($responseJson);
+		    	$return = 	$response_->getResponse();
 			}
 			return $return;
 		}
@@ -415,43 +383,13 @@ The next step is to redirect the account holder. To do this you must parse the '
 			{
 				$checkResult = new ResultCheck();    	
 		    	$result = $checkResult->checkResult($response['result']['code']);
-
-		    	if($result['state'] == 1)  //success
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        elseif($result['state'] == 2 ) //pending
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        else //rejections
-		        {
-		            $return = array(
-		                "isSuccess"=>false,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
+		    	$response_ = new SimplepayResponse($responseJson,$result['state']);
+		    	$return = 	$response_->getResponse();
 			}
 			else
 			{
-				$return = array(
-		            "isSuccess"=>false,
-		            "message"=>"Failed to receive response from API",
-		            "code"=>"--",
-		            "crud"=>$responseJson,
-		            );
+		    	$response_ = new SimplepayResponse($responseJson);
+				$return = 	$response_->getResponse();
 			}
 			return $return;
 		}
@@ -505,45 +443,14 @@ The next step is to redirect the account holder. To do this you must parse the '
 
 			if(!empty($response['result']['code'])){
 				$checkResult = new ResultCheck();
-
 				$result = $checkResult->checkResult('');
-
-		        if($result['state'] == 1)  //success
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        elseif($result['state'] == 2 ) //pending
-		        {
-		            $return = array(
-		                "isSuccess"=>true,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
-		        else //rejections
-		        {
-		            $return = array(
-		                "isSuccess"=>false,
-		                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-		                "code"=>$response['result']['code'],
-		                "crud"=>$responseJson,
-		                );
-		        }
+		    	$response_ = new SimplepayResponse($responseJson,$result['state']);
+		    	$return = 	$response_->getResponse();
 			}
 			else //rejections
 			{
-	            $return = array(
-	                "isSuccess"=>false,
-	                "message"=>"Failed to receive response from API",
-	                "code"=>'',
-	                "crud"=>$responseJson,
-	                );
+				$response_ = new SimplepayResponse($responseJson);
+		    	$return = 	$response_->getResponse();
 			}
 			return $return;
 		}
@@ -737,66 +644,21 @@ The next step is to redirect the account holder. To do this you must parse the '
     		$method = !empty($response['redirect']['method'])?$response['redirect']['method']:'';
     		$parameters = !empty($response['redirect']['parameters'])?$response['redirect']['parameters']:"";
     		$id = !empty($response['id'])?$response['id']:"";
-	        if($result['state'] == 1) //success
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "id"=>$id,
-	                "crud"=>$responseJson,
-	                "redirect_url"=>$redirect_url,
+    		$response_ = new SimplepayResponse($responseJson, $result['state'], array( "redirect_url"=>$redirect_url,
 	                "method"=>$method,
-	                "parameters"=>$parameters,
-	                );
-	        }
-	        elseif($result['state'] == 2 ) //pending
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "id"=>$id,
-	                "crud"=>$responseJson,
-	                "redirect_url"=>$redirect_url,
-	                "method"=>$method,
-	                "parameters"=>$parameters,
-	                );
-	        }
-	        else //rejections
-	        {
-	            $return = array(
-	                "isSuccess"=>false,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "id"=>$id,
-	                "crud"=>$responseJson,
-	                "redirect_url"=>$redirect_url,
-	                "method"=>$method,
-	                "parameters"=>$parameters,
-	                );
-	        }
-
+	                "parameters"=>$parameters));
+		    $return = 	$response_->getResponse();
 		}
 		else
 		{
 			if(!$response['result']){
-
-				$return = array(
-	                "isSuccess"=>false,
-	                "message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand),
-	                "code"=>"--",
-	                "crud"=>$responseJson,
-                );
+                $response_ = new SimplepayResponse($responseJson, false, array( "message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand)));
+		    	$return = 	$response_->getResponse();
 			}
 			else //some code here for false case
 			{
-			 	$return = array(
-	                "isSuccess"=>false,
-	                "message"=>"Failed to receive any response from API",
-	                "code"=>"--",
-	                "crud"=>$responseJson,
-	                );
+			 	$response_ = new SimplepayResponse($responseJson);
+		   		$return = 	$response_->getResponse();
 			}
 		}
 
@@ -818,65 +680,23 @@ The next step is to redirect the account holder. To do this you must parse the '
 			$registrationId = !empty($response['registrationId'])?$response['registrationId']:false;
 			$id = !empty($response['id'])?$response['id']:false;
 
-	        if($result['state'] == 1) //success
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$responseJson,
-	                );
-	            if($registrationId)
-		            $return['registrationId'] = $registrationId;
-		        if($id)
-		        	$return['id'] = $id;
-	        }
-	        elseif($result['state'] == 2 ) //pending
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$responseJson,
-	                );
-	            if($registrationId)
-		            	$return['registrationId'] = $registrationId;
-		        if($id)
-		        	$return['id'] = $id;
-	        }
-	        else  //rejections
-	        {
-	            $return = array(
-	                "isSuccess"=>false,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$responseJson,
-	                );
-	            if($registrationId)
-		            $return['registrationId'] = $registrationId;
-		        if($id)
-		        	$return['id'] = $id;
-	        }
+			$response_ = new SimplepayResponse($responseJson, $result['state'], array("registrationId"=>$registrationId,
+	                "id"=>$id,
+	                ));
+
+		   	$return = 	$response_->getResponse();
 		}
 		else
 		{
 			if(!$response['result']){
-
-				$return = array(
-	                "isSuccess"=>false,
-	                "message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand),
-	                "code"=>"--",
-	                "crud"=>$responseJson,
-	                );
+				$response_ = new SimplepayResponse($responseJson, false, array("message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand)));
+			
+		   		$return = 	$response_->getResponse();	
 			}
 			else //some code here for false case
 			{
-			  $return = array(
-	                "isSuccess"=>false,
-	                "message"=>"Failed to receive response from API",
-	                "code"=>"--",
-	                "crud"=>$responseJson,
-	                );
+				$response_ = new SimplepayResponse($responseJson);
+		   		$return = 	$response_->getResponse();
 			}
 		}
 
@@ -894,42 +714,13 @@ The next step is to redirect the account holder. To do this you must parse the '
     	{
     		$checkResult = new ResultCheck();
     		$result = $checkResult->checkResult($response['result']['code']);
-    		if($result['state'] == 1)//success
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$response,
-	                );
-	        }
-	        elseif($result['state'] == 2 )//pending
-	        {
-	            $return = array(
-	                "isSuccess"=>true,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$response,
-	                );
-	        }
-	        else //rejections
-	        {
-	            $return = array(
-	                "isSuccess"=>false,
-	                "message"=>!empty($response['result']['description'])?$response['result']['description']:"",
-	                "code"=>$response['result']['code'],
-	                "crud"=>$response,
-	                );
-	        }
+    		$res = new SimplepayResponse($responseJson,$result['state']);
+    		$return = $res->getResponse();
     	}
     	else
     	{
-    		$return = array(
-		                "isSuccess"=>false,
-		                "message"=>"Failed to receive response from API",
-		                "code"=>null,
-		                "crud"=>$response,
-		                );
+    		$res = new SimplepayResponse($responseJson);
+			$return = $res->getResponse()   ;		
     	}
 
     	return $return;
@@ -944,7 +735,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		{
 			throw new PaymentGatewayVerificationFailedException("No variables found");
 		}
-		elseif ( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->registrationId) || empty($params->currency) || empty($params->amount) || empty($params->paymentType) ) {
+		elseif ( empty($params->registrationId) ) {
 			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Variable");
 		}
 		else
@@ -973,10 +764,6 @@ The next step is to redirect the account holder. To do this you must parse the '
     	{
     		throw new PaymentGatewayVerificationFailedException("No Paramter Found",1);
     	}
-    	else if( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->cardcvv)  || empty($params->cardExpiryMonth) || empty($params->cardExpiryYear)  || empty($params->cardHolder) || empty($params->cardNumber) || empty($params->paymentBrand) )
-    	{
-    		throw new PaymentGatewayVerificationFailedException("Undefined or Missing Parameter", 1);
-    	}
     	else
     		return true;
     }
@@ -988,7 +775,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		if(empty($params)){
 			throw new PaymentGatewayVerificationFailedException("No parameter found", 1);
 		}
-		else if( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->registrationId))
+		else if( empty($params->registrationId) )
 		{
 			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Paramter", 1);
 		}
@@ -1005,10 +792,6 @@ The next step is to redirect the account holder. To do this you must parse the '
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
 		}
-		else if ( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->amount) || empty($params->currency) || empty($params->paymentBrand) || empty($params->paymentType) || empty($params->cardExpiryYear) || empty($params->cardExpiryMonth) || empty($params->cardNumber) || empty($params->cardHolder) || empty($params->cardcvv) )
-		{
-			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Paramter", 1);
-		}
 		else
 			return true;
 	}
@@ -1020,10 +803,6 @@ The next step is to redirect the account holder. To do this you must parse the '
 		if(empty($params))
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
-		}
-		else if ( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->amount) || empty($params->currency) || empty($params->paymentBrand) || empty($params->paymentType) || empty($params->shopperResultUrl) )
-		{
-			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Paramter", 1);
 		}
 		else
 			return true;	
@@ -1038,8 +817,8 @@ The next step is to redirect the account holder. To do this you must parse the '
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
 		}
-		else if( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->id) ){
-			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Paramter", 1);
+		else if( empty($params->id) ){
+			throw new PaymentGatewayVerificationFailedException("Registration Id not found", 1);
 		}
 		else
 			return true;
@@ -1053,9 +832,6 @@ The next step is to redirect the account holder. To do this you must parse the '
 		if(empty($params))
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
-		}
-		else if( empty($params->userId) || empty($params->password) || empty($params->entityId) || empty($params->registrationId) || empty($params->amount) || empty($params->currency) || empty($params->paymentType) ){
-			throw new PaymentGatewayVerificationFailedException("Undefined or Missing Paramter", 1);
 		}
 		else
 			return true;

@@ -7,24 +7,22 @@ class VariableValidationException extends Exception
 	/*
 	* @vars
 	*/
-	protected $message;
+	
 	protected $code;
 
 	 /**
      * Constructor.
      *
-     * @param string     $message
      * @param int        $code
      * 
      */
 	
 	public function __construct($message = null, $code = 0)
     {
-        parent::__construct('Error: ' . $message, $code);
+        parent::__construct($message);
+        $this->code = $code;
     }
-    public function fetchMessage(){
-    	return $this->message;
-    }
+    
     public function fetchCode(){
     	return $this->code;
     }
