@@ -13,7 +13,7 @@ class SimplepayServiceProvider extends ServiceProvider
     public function boot()
     {
         // Route
-        include __DIR__.'/routes.php';
+        //include __DIR__.'/routes.php';
          $this->publishes([
             __DIR__.'/Config/simplepay.php' => config_path('simplepay.php'),
         ], 'config');
