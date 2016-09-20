@@ -53,13 +53,16 @@ class simplepay{
 			$this->$reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
 		}
 	}
+
 	public function getReqestObject(){
 		return $this->$reqestObject;
 	}
+
 	public function getEndpoint(){
         $this->$endpoint = $this->$env == 'live'?$this->$liveEndpoint:$this->$testEndpoint;
 		return $this->$endpoint;
 	}
+	
 	public function getAPIVersion(){
 		return $this->$version;
 	}

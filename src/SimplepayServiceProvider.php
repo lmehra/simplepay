@@ -30,6 +30,10 @@ class SimplepayServiceProvider extends ServiceProvider
             return new makePayment;
         });*/
          // Bind captcha
+        $this->app->singleton(Simplepay::class, function ($app) {
+            return new Connection(config('simplepay'));
+        });
+
         $this->app->bind('Simplepay', function($app)
         {
             return new Simplepay(
