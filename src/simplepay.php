@@ -8,38 +8,38 @@ use Mansa\Simplepay\ResultCheck;
 use Mansa\Simplepay\SimplepayResponse;
 use BadMethodCallException;
 
-class makePayment{
+class simplepay{
 	
-	static protected $testEndpoint;
-	static protected $liveEndpoint;
-	static protected $version;
-	static protected $api_ = '/payments';
-	static private $env;
-	static private $url ='';
-	static private $endpoint;
-	static private $params = [];
-	static private $reqestObject = [];
-	static private $ssl_verifier;
+	protected $testEndpoint;
+	protected $liveEndpoint;
+	protected $version;
+	protected $api_ = '/payments';
+	private $env;
+	private $url ='';
+	private $endpoint;
+	private $params = [];
+	private $reqestObject = [];
+	private $ssl_verifier;
 
 	/*
 	* Valid brands are Visa (VISA), MasterCard (MASTER) and American Express (AMEX)
 	*/
-	static private $validSyncPaymentBrand = ['VISA','MASTER','AMEX'];
+	private $validSyncPaymentBrand = ['VISA','MASTER','AMEX'];
 
 	/*
 	* Valid brands are Alipay (ALIPAY) and China Unionpay (CHINAUNIONPAY)
 	*/
-	static private $validAsyncPaymentBrand = ['ALIPAY',"CHINAUNIONPAY"];
+	private $validAsyncPaymentBrand = ['ALIPAY',"CHINAUNIONPAY"];
 
 	public function __construct($reqestObject){
-		self::$reqestObject = $reqestObject;
-		self::$testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
-		self::$liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
-		self::$env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
-		self::$version = env('SIMPLEPAY_VERSION',config("simplepay.version"));
-		self::$ssl_verifier = self::$env == 'live'?true:false;
-		self::getEndpoint();
-		self::getUrl();
+		$this->$reqestObject = $reqestObject;
+		$this->$testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
+		$this->$liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
+		$this->$env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
+		$this->$version = env('SIMPLEPAY_VERSION',config("simplepay.version"));
+		$this->$ssl_verifier = $this->$env == 'live'?true:false;
+		$this->getEndpoint();
+		$this->getUrl();
 		$this->setRequestObject();
 	}
 
@@ -53,15 +53,15 @@ class makePayment{
 			$this->$reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
 		}
 	}
-	static function getReqestObject(){
-		return self::$reqestObject;
+	public function getReqestObject(){
+		return $this->$reqestObject;
 	}
-	static function getEndpoint(){
-        self::$endpoint = self::$env == 'live'?self::$liveEndpoint:self::$testEndpoint;
-		return self::$endpoint;
+	public function getEndpoint(){
+        $this->$endpoint = $this->$env == 'live'?$this->$liveEndpoint:$this->$testEndpoint;
+		return $this->$endpoint;
 	}
-	static function getAPIVersion(){
-		return self::$version;
+	public function getAPIVersion(){
+		return $this->$version;
 	}
 
  	/*
@@ -69,47 +69,47 @@ class makePayment{
     * checks if enviornment is test or live
     * send 'test url' for test environment and 'live url' for live environment
     */
-    static function getUrl(){
-        self::$url = self::$endpoint.self::$version.self::$api_;
-        return self::$url;
+    public function getUrl(){
+        $this->$url = $this->$endpoint.$this->$version.$this->$api_;
+        return $this->$url;
     }
-	static function getTestEndpoint(){
-		return self::$testEndpoint;
+	public function getTestEndpoint(){
+		return $this->$testEndpoint;
 	}
-	static function getLiveEndpoint(){
-		return self::$liveEndpoint;
+	public function getLiveEndpoint(){
+		return $this->$liveEndpoint;
 	}
-	static function getVersion(){
-		return self::$version;
+	public function getVersion(){
+		return $this->$version;
 	}
-	static function getApiPath(){
-		return self::$api_;
+	public function getApiPath(){
+		return $this->$api_;
 	}
-	static function getEnvironment(){
-		return self::$env;
+	public function getEnvironment(){
+		return $this->$env;
 	}
-	static function setTestEndpoint($testEndpoint){
-		return self::$testEndpoint  = $testEndpoint;
+	public function setTestEndpoint($testEndpoint){
+		return $this->$testEndpoint  = $testEndpoint;
 	}
-	static function setLiveEndpoint($liveEndpoint){
-		return self::$liveEndpoint = $liveEndpoint;
+	public function setLiveEndpoint($liveEndpoint){
+		return $this->$liveEndpoint = $liveEndpoint;
 	}
-	static function setVersion($version){
-		return self::$version = $version;
+	public function setVersion($version){
+		return $this->$version = $version;
 	}
-	static function setApiPath($api_url){
-		return self::$api_ = $api_url;
+	public function setApiPath($api_url){
+		return $this->$api_ = $api_url;
 	}
-	static function setEnvironment($environment){
-		return self::$env = $environment; //live or 
+	public function setEnvironment($environment){
+		return $this->$env = $environment; //live or 
 	}
 	
 	/*
 	* Method to validate payment type for synchronize payments
 	*/
-	static function ValidateSyncPaymentBrand($paymentBrand){
+	public function ValidateSyncPaymentBrand($paymentBrand){
 		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, self::$validSyncPaymentBrand) ){
+		if(in_array($paymentBrand, $this->$validSyncPaymentBrand) ){
 			return array("result"=>true,"paymentBrand"=>$paymentBrand);
 		}
 		else
@@ -119,27 +119,27 @@ class makePayment{
 	/*
 	* Method to validate payment type for synchronize payments
 	*/
-	static function ValidateAsyncPaymentBrand($paymentBrand){
+	public function ValidateAsyncPaymentBrand($paymentBrand){
 		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, self::$validAsyncPaymentBrand) ){
+		if(in_array($paymentBrand, $this->$validAsyncPaymentBrand) ){
 			return array("result"=>true,"paymentBrand"=>$paymentBrand);
 		}
 		else
 			return array("result"=>false,"paymentBrand"=>$paymentBrand,"errorCode"=>"","message"=>"Invalid Payment Brand");
 	}
 
-	static function curl_Connect($syncParam) {
+	public function curl_Connect($syncParam) {
 
 		if(!empty($syncParam->paymentBrand)){
 		    //check if the payment brand is valid
-		    $isValid = self::ValidateSyncPaymentBrand($syncParam->paymentBrand);
+		    $isValid = $this->ValidateSyncPaymentBrand($syncParam->paymentBrand);
 
 		     //if not valie payment brand then show error
 		    if(!$isValid['result'])
 		    	return json_encode($isValid);
 		}
 	   
-	    $url = self::$url;
+	    $url = $this->$url;
 		$data = "authentication.userId=" .$syncParam->userId.
 			"&authentication.password=" .$syncParam->password.
 			"&authentication.entityId=" .$syncParam->entityId.
@@ -162,7 +162,7 @@ class makePayment{
 		}
 
 		if($syncParam->recurringType && strtoupper($syncParam->recurringType) == 'REPEATED'){
-			$url = self::getEndpoint().self::getVersion()."/registrations/".$syncParam->registrationId."/payments";
+			$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId."/payments";
 			$data = "authentication.userId=" .$syncParam->userId.
 				"&authentication.password=" .$syncParam->password.
 				"&authentication.entityId=" .$syncParam->entityId.
@@ -171,7 +171,7 @@ class makePayment{
 				"&paymentType=" .$syncParam->paymentType;
 			$data .= "&recurringType=REPEATED";
 		}
-		return self::postCurl($url, $data);
+		return $this->postCurl($url, $data);
 	}
 
 
@@ -180,9 +180,9 @@ After asynchronous_Step1, you need to follow the following guideline:
 
 The next step is to redirect the account holder. To do this you must parse the 'redirect_url' from the Initial Payment response along with any parameters. If parameters are present they should be POST in the redirect, otherwise a straight forward redirect to the 'redirect_url' is sufficient.
 */
-	static function asynchronous_Step1($syncParam){
+	public function asynchronous_Step1($syncParam){
        //check if the payment brand is valid
-        $isValid = self::ValidateAsyncPaymentBrand($syncParam->paymentBrand);
+        $isValid = $this->ValidateAsyncPaymentBrand($syncParam->paymentBrand);
 
 	    if(!$isValid['result'])
 	    	return json_encode($isValid);
@@ -195,16 +195,16 @@ The next step is to redirect the account holder. To do this you must parse the '
             "&paymentBrand=" .$syncParam->paymentBrand.
             "&paymentType=" .$syncParam->paymentType.
             "&shopperResultUrl=" .$syncParam->shopperResultUrl;
-		return self::postCurl(self::$url, $data);
+		return $this->postCurl($this->$url, $data);
     }
 
-	static function getAsynPaymentStatus($syncParam){
-        $url = self::$url."/".$syncParam->id;
+	public function getAsynPaymentStatus($syncParam){
+        $url = $this->$url."/".$syncParam->id;
         //$url = "https://test.oppwa.com/v1/payments/{id}";
         $url .= "?authentication.userId=".$syncParam->userId;
         $url .= "&authentication.password=".$syncParam->password;
         $url .= "&authentication.entityId=".$syncParam->entityId;
-		return self::curlCustomRequest($url);
+		return $this->curlCustomRequest($url);
     }
 
 	/**
@@ -213,12 +213,12 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string url
 	* @param string data
 	*/
-    static function postCurl($url, $data){
+    public function postCurl($url, $data){
     	$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$ssl_verifier);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->$ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -234,7 +234,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string url
 	* @param string requestType [default is false]
     */
-    static function curlCustomRequest($url,$requestType = false){
+    public function curlCustomRequest($url,$requestType = false){
     	$request = 'GET';
     	if($requestType == 'deleteToken')
     		$request = 'DELETE';
@@ -242,7 +242,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     	$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$ssl_verifier);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->$ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -267,14 +267,14 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param int cardcvv
     */
-    static function storeStandAloneData($syncParam){
+    public function storeStandAloneData($syncParam){
     	  //check if the payment brand is valid
-	    $isValid = self::ValidateSyncPaymentBrand($syncParam->paymentBrand);
+	    $isValid = $this->ValidateSyncPaymentBrand($syncParam->paymentBrand);
 
 	    //if not valie payment brand then show error
 	    if(!$isValid['result'])
 	    	return json_encode($isValid);
-    	$url = self::getEndpoint().self::getVersion()."/registrations";
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations";
     	$data = "authentication.userId=" .$syncParam->userId.
             "&authentication.password=" .$syncParam->password.
             "&authentication.entityId=" .$syncParam->entityId.
@@ -284,7 +284,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 			"&card.expiryMonth=" .$syncParam->cardExpiryMonth.
 			"&card.expiryYear=" .$syncParam->cardExpiryYear.
 			"&card.cvv=".$syncParam->cardcvv;
-		$result = self::postCurl($url,$data);
+		$result = $this->postCurl($url,$data);
 		return $result;	
     }
 
@@ -297,13 +297,13 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string password
 	* @param int registrationId
     */
-    static function deleteToken($syncParam) {
-    	$url = self::getEndpoint().self::getVersion()."/registrations/".$syncParam->registrationId;
+    public function deleteToken($syncParam) {
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId;
 		//$url = "https://test.oppwa.com/v1/registrations/{id}";
 		$url .= "?authentication.userId=".$syncParam->userId;
 		$url .= "&authentication.password=".$syncParam->password;
 		$url .= "&authentication.entityId=".$syncParam->entityId;
-		return self::curlCustomRequest($url,'deleteToken');
+		return $this->curlCustomRequest($url,'deleteToken');
 		$response = json_decode($responseJson,true);
 	}
 
@@ -318,15 +318,15 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string paymentType
 	* @param int registrationId
 	*/
-	static function OneClickSendPayment($syncParam) {
-    	$url = self::getEndpoint().self::getVersion()."/registrations/".$syncParam->registrationId."/payments";
+	public function OneClickSendPayment($syncParam) {
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId."/payments";
     	$data = "authentication.userId=" .$syncParam->userId.
             "&authentication.password=" .$syncParam->password.
             "&authentication.entityId=" .$syncParam->entityId.
             "&currency={$syncParam->currency}".
             "&amount={$syncParam->amount}".
             "&paymentType=" .$syncParam->paymentType;
-        return self::postCurl($url,$data);
+        return $this->postCurl($url,$data);
 	}
 
     /**
@@ -345,11 +345,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param string cardcvv
     */
-    static function createTokenWithOutPayment(){
+    public function createTokenWithOutPayment(){
 		try{
-			$syncParam = self::getReqestObject();
-			self::ValidateCreateToken($syncParam);
-			$responseJson = self::storeStandAloneData($syncParam);
+			$syncParam = $this->getReqestObject();
+			$this->ValidateCreateToken($syncParam);
+			$responseJson = $this->storeStandAloneData($syncParam);
 			$response = json_decode($responseJson,true);
 			$registrationId = null;
 
@@ -383,11 +383,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string password
 	* @param int registrationId
 	*/
-	static function makeDeleteTokenRequest(){
+	public function makeDeleteTokenRequest(){
 		try{
-			$syncParam = self::getReqestObject();
-			self::validateDeleteTokenParams($syncParam);
-			$responseJson = self::deleteToken($syncParam);
+			$syncParam = $this->getReqestObject();
+			$this->validateDeleteTokenParams($syncParam);
+			$responseJson = $this->deleteToken($syncParam);
 			$response = json_decode($responseJson,true);
 
 			if(!empty($response['result']['code']))
@@ -444,12 +444,12 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string paymentType
 	* @param int registrationId
 	*/
-	static function makeOneClickPayment(){
+	public function makeOneClickPayment(){
 		try{
-			$param = self::getReqestObject();
+			$param = $this->getReqestObject();
 			//validate method related parameters
-			self::ValidateOneClickPaymentVars($param);
-			$responseJson = self::OneClickSendPayment($param);	
+			$this->ValidateOneClickPaymentVars($param);
+			$responseJson = $this->OneClickSendPayment($param);	
 			$response = json_decode($responseJson,true);
 
 			if(!empty($response['result']['code'])){
@@ -487,13 +487,13 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param string cardcvv
 	*/
-	static function createTokenWithPayment(){
-		$syncParam = self::getReqestObject();
+	public function createTokenWithPayment(){
+		$syncParam = $this->getReqestObject();
 		try{
-			self::ValidateCreateToken($syncParam);
+			$this->ValidateCreateToken($syncParam);
 			//set createRegistration true to initiate token registration
 			$syncParam->createRegistration = true;
-			$response = self::makeSyncPayments($syncParam);	
+			$response = $this->makeSyncPayments($syncParam);	
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -521,14 +521,14 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param string cardcvv
 	*/
-	static function createTokenWithInitialRecurringPayment(){
-		$syncParam = self::getReqestObject();
+	public function createTokenWithInitialRecurringPayment(){
+		$syncParam = $this->getReqestObject();
 		try{
-			self::ValidateCreateToken($syncParam);
+			$this->ValidateCreateToken($syncParam);
 			//set createRegistration true to initiate token registration
 			$syncParam->createRegistration = true;
 			$syncParam->recurringType = 'INITIAL';
-			$response = self::makeSyncPayments($syncParam);	
+			$response = $this->makeSyncPayments($syncParam);	
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -552,13 +552,13 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param string cardcvv
 	*/
-	static function requestRecurringPaymentWithToken(){
-		$syncParam = self::getReqestObject();
+	public function requestRecurringPaymentWithToken(){
+		$syncParam = $this->getReqestObject();
 		try{
-			self::ValidateRecurringPaymentWithToken($syncParam);
+			$this->ValidateRecurringPaymentWithToken($syncParam);
 			//for making recurring payment repeat
 			$syncParam->recurringType = 'REPEATED';
-			$response = self::makeSyncPayments($syncParam);	
+			$response = $this->makeSyncPayments($syncParam);	
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -582,11 +582,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param int cardExpiryYear
 	* @param string cardcvv
 	*/
-	static function requestSyncPayment(){
-		$syncParam = self::getReqestObject();
+	public function requestSyncPayment(){
+		$syncParam = $this->getReqestObject();
 		try{
-			self::ValidateCreateToken($syncParam);
-			$response = self::makeSyncPayments($syncParam);	
+			$this->ValidateCreateToken($syncParam);
+			$response = $this->makeSyncPayments($syncParam);	
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -606,11 +606,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string shopperResultUrl
 	* @param string paymentType
 	*/
-	static function requestAsyncPayment(){
-		$syncParam = self::getReqestObject();
+	public function requestAsyncPayment(){
+		$syncParam = $this->getReqestObject();
 		try{
-			self::ValidateAsyncPaymentParams($syncParam);
-			$response = self::makeAsyncPayments($syncParam);	
+			$this->ValidateAsyncPaymentParams($syncParam);
+			$response = $this->makeAsyncPayments($syncParam);	
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -626,11 +626,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string password
 	* @param string id
 	*/
-	static function requestPaymentStatus(){
-		$param = self::getReqestObject();
+	public function requestPaymentStatus(){
+		$param = $this->getReqestObject();
 		try{
-			self::ValidatePaymentStatus($param);
-			$response = self::getAsyncPaymentStatus($param);
+			$this->ValidatePaymentStatus($param);
+			$response = $this->getAsyncPaymentStatus($param);
 			return $response;
 		}
 		catch(PaymentGatewayVerificationFailedException $e){
@@ -643,8 +643,8 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* Method to make payment and fetch results via Asynchronous Method
 	*
 	*/
-    static function makeAsyncPayments($param){
-		$responseJson = self::asynchronous_Step1($param);
+    public function makeAsyncPayments($param){
+		$responseJson = $this->asynchronous_Step1($param);
 		$response = json_decode($responseJson,true);
 
 		if(!empty($response['result']['code']))
@@ -663,7 +663,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		else
 		{
 			if(!$response['result']){
-                $response_ = new SimplepayResponse($responseJson, false, array( "message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand)));
+                $response_ = new SimplepayResponse($responseJson, false, array( "message"=>"Invalid Brand, valid brands are ".implode(",",$this->$validSyncPaymentBrand)));
 		    	$return = 	$response_->getResponse();
 			}
 			else //some code here for false case
@@ -680,8 +680,8 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* Method to make payment via Synchronous Method
 	*
 	*/
-    static function makeSyncPayments($param){
-    	$responseJson = self::curl_Connect($param);
+    public function makeSyncPayments($param){
+    	$responseJson = $this->curl_Connect($param);
     	$response = json_decode($responseJson,true);
     	
     	if(!empty($response['result']['code']))
@@ -700,7 +700,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		else
 		{
 			if(!$response['result']){
-				$response_ = new SimplepayResponse($responseJson, false, array("message"=>"Invalid Brand, valid brands are ".implode(",",self::$validSyncPaymentBrand)));
+				$response_ = new SimplepayResponse($responseJson, false, array("message"=>"Invalid Brand, valid brands are ".implode(",",$this->$validSyncPaymentBrand)));
 			
 		   		$return = 	$response_->getResponse();	
 			}
@@ -717,8 +717,8 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	*	Method to capture payment status of Async payment
 	*/
-    static function getAsyncPaymentStatus($param){
-    	$responseJson = self::getAsynPaymentStatus($param);
+    public function getAsyncPaymentStatus($param){
+    	$responseJson = $this->getAsynPaymentStatus($param);
     	$response = json_decode($responseJson,true);
 
     	if(!empty($response['result']['code']))
@@ -741,7 +741,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	* Method to validate OneClickPayment parameters
 	*/
-    static function ValidateOneClickPaymentVars($params){
+    public function ValidateOneClickPaymentVars($params){
 		if(empty($params))
 		{
 			throw new PaymentGatewayVerificationFailedException("No variables found");
@@ -758,7 +758,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	* Method to validate variable required to run CheckResult method
 	*/
-	static function ValidateCheckResult($param){
+	public function ValidateCheckResult($param){
 		if(empty($param))
 		{
 			throw new VariableValidationException("Parameter result.code is missing", 1);
@@ -770,7 +770,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	* Method to validate the Registration or User Credit Card (without payment) params
 	*/
-	static function validateRegisterUserCard($params){
+	public function validateRegisterUserCard($params){
     	if(empty($params))
     	{
     		throw new PaymentGatewayVerificationFailedException("No Paramter Found",1);
@@ -782,7 +782,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     /*
 	* Method to validate the Delete Token params
 	*/
-	static function validateDeleteTokenParams($params){
+	public function validateDeleteTokenParams($params){
 		if(empty($params)){
 			throw new PaymentGatewayVerificationFailedException("No parameter found", 1);
 		}
@@ -798,7 +798,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     /*
 	* Method to validate the Create Token params
 	*/
-	static function ValidateCreateToken($params){
+	public function ValidateCreateToken($params){
 		if(empty($params))
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
@@ -810,7 +810,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	* Method to validate Async payment parameters
 	*/
-	static function ValidateAsyncPaymentParams($params){
+	public function ValidateAsyncPaymentParams($params){
 		if(empty($params))
 		{
 			throw new PaymentGatewayVerificationFailedException("No params found", 1);
@@ -822,7 +822,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	* Method to validate payment status parameters
 	*/
-	static function ValidatePaymentStatus($params)
+	public function ValidatePaymentStatus($params)
 	{
 		if(empty($params))
 		{
@@ -838,7 +838,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 	/*
 	*	Method to validate parameters for requestRecurringPaymentWithToken method
 	*/
-	static function ValidateRecurringPaymentWithToken($params)
+	public function ValidateRecurringPaymentWithToken($params)
 	{
 		if(empty($params))
 		{

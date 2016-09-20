@@ -12,9 +12,9 @@ class SimplepayServiceProvider extends ServiceProvider
     public function boot()
     {
         // Route
-        include __DIR__.'/routes.php';
+        //include __DIR__.'/routes.php';
          $this->publishes([
-            __DIR__.'/Config/Simplepay.php' => config_path('Simplepay.php'),
+            __DIR__.'/Config/simplepay.php' => config_path('simplepay.php'),
         ], 'config');
     }
 
@@ -26,8 +26,21 @@ class SimplepayServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom( __DIR__.'/Config/simplepay.php', 'simplepay');
-        $this->app['Simplepay'] = $this->app->share(function($app) {
-            return new Simplepay;
+        /*$this->app['Simplepay'] = $this->app->share(function($app) {
+            return new makePayment;
+        });*/
+         // Bind captcha
+        $this->app->bind('Simplepay', function($app)
+        {
+            return new Simplepay(
+                $app['Mansa\Simplepay\GetSyncCallParameters'],
+                $app['Mansa\Simplepay\GetAsyncCallParameters'],
+                $app['Mansa\Simplepay\Exceptions\PaymentGatewayVerificationFailedException'],
+                $app['Mansa\Simplepay\Exceptions\VariableValidationException'],
+                $app['Mansa\Simplepay\ResultCheck'],
+                $app['Mansa\Simplepay\SimplepayResponse'],
+                $app['BadMethodCallException']
+            );
         });
     }
 }
