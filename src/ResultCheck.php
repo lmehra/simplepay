@@ -1,13 +1,13 @@
 <?php namespace Mansa\Simplepay;
 
 use Mansa\Simplepay\Exceptions\VariableValidationException;
-use Mansa\Simplepay\makePayment;
+use Mansa\Simplepay\Simplepay;
 
 class ResultCheck{
 	
 	public $endpoint;
 	public function __construct(){
-        $getVar = new makePayment('');
+        $getVar = new Simplepay('');
 		$this->endpoint = $getVar::getEndpoint()."v1/";
 	}
 
@@ -51,7 +51,7 @@ class ResultCheck{
     */
     function checkResult($resultCode=false){ 
         try{
-            makePayment::ValidateCheckResult($resultCode);
+            Simplepay::ValidateCheckResult($resultCode);
         	//get the regax for checking result status
             $resultCodes = $this->MatchResultCodes();
             $flag = false;

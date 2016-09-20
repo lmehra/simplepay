@@ -8,7 +8,7 @@ use Mansa\Simplepay\ResultCheck;
 use Mansa\Simplepay\SimplepayResponse;
 use BadMethodCallException;
 
-class simplepay{
+class Simplepay{
 	
 	protected $testEndpoint;
 	protected $liveEndpoint;
@@ -18,7 +18,7 @@ class simplepay{
 	private $url ='';
 	private $endpoint;
 	private $params = [];
-	private $reqestObject = [];
+	private $reqestObject;
 	private $ssl_verifier;
 
 	/*
@@ -31,40 +31,50 @@ class simplepay{
 	*/
 	private $validAsyncPaymentBrand = ['ALIPAY',"CHINAUNIONPAY"];
 
-	public function __construct($reqestObject){
-		$this->$reqestObject = $reqestObject;
-		$this->$testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
-		$this->$liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
-		$this->$env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
-		$this->$version = env('SIMPLEPAY_VERSION',config("simplepay.version"));
-		$this->$ssl_verifier = $this->$env == 'live'?true:false;
+	public function __construct($reqestObject = false){
+		$this->testEndpoint = env('SIMPLEPAY_TEST_ENDPOINT',config("simplepay.testEndpoint"));
+		$this->liveEndpoint = env('SIMPLEPAY_LIVE_ENDPOINT',config("simplepay.liveEndpoint"));
+		$this->env = env('SIMPLEPAY_API_ENVIRONMENT',config("simplepay.api_environment"));
+		$this->version = env('SIMPLEPAY_VERSION',config("simplepay.version"));
+		$this->ssl_verifier = $this->env == 'live'?true:false;
 		$this->getEndpoint();
 		$this->getUrl();
-		$this->setRequestObject();
+		$this->setRequestObject($reqestObject);
 	}
 
 	/*
 	* Set default configuration variable
 	*/
-	public function setRequestObject(){
-		if(!empty($this->$reqestObject)){
-			$this->$reqestObject->userId = env('SIMPLEPAY_USER_ID',config("simplepay.userId"));
-			$this->$reqestObject->entityId = env('SIMPLEPAY_ENTITY_ID',config("simplepay.entityId"));
-			$this->$reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
+	public function setRequestObject($reqestObject){
+
+		try{
+			$this->reqestObject = $reqestObject;
+
+			$this->ValidateRequestObject($reqestObject);
+
+			if(!empty($this->reqestObject)){
+				$this->reqestObject->userId = env('SIMPLEPAY_USER_ID',config("simplepay.userId"));
+				$this->reqestObject->entityId = env('SIMPLEPAY_ENTITY_ID',config("simplepay.entityId"));
+				$this->reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
+			}
+		}
+		catch(PaymentGatewayVerificationFailedException $e)
+		{
+			echo $e->getMessage();
 		}
 	}
 
 	public function getReqestObject(){
-		return $this->$reqestObject;
+		return $this->reqestObject;
 	}
 
 	public function getEndpoint(){
-        $this->$endpoint = $this->$env == 'live'?$this->$liveEndpoint:$this->$testEndpoint;
-		return $this->$endpoint;
+        $this->endpoint = $this->env == 'live'?$this->liveEndpoint:$this->testEndpoint;
+		return $this->endpoint;
 	}
-	
+
 	public function getAPIVersion(){
-		return $this->$version;
+		return $this->version;
 	}
 
  	/*
@@ -73,38 +83,38 @@ class simplepay{
     * send 'test url' for test environment and 'live url' for live environment
     */
     public function getUrl(){
-        $this->$url = $this->$endpoint.$this->$version.$this->$api_;
-        return $this->$url;
+        $this->url = $this->endpoint.$this->version.$this->api_;
+        return $this->url;
     }
 	public function getTestEndpoint(){
-		return $this->$testEndpoint;
+		return $this->testEndpoint;
 	}
 	public function getLiveEndpoint(){
-		return $this->$liveEndpoint;
+		return $this->liveEndpoint;
 	}
 	public function getVersion(){
-		return $this->$version;
+		return $this->version;
 	}
 	public function getApiPath(){
-		return $this->$api_;
+		return $this->api_;
 	}
 	public function getEnvironment(){
-		return $this->$env;
+		return $this->env;
 	}
 	public function setTestEndpoint($testEndpoint){
-		return $this->$testEndpoint  = $testEndpoint;
+		return $this->testEndpoint  = $testEndpoint;
 	}
 	public function setLiveEndpoint($liveEndpoint){
-		return $this->$liveEndpoint = $liveEndpoint;
+		return $this->liveEndpoint = $liveEndpoint;
 	}
 	public function setVersion($version){
-		return $this->$version = $version;
+		return $this->version = $version;
 	}
 	public function setApiPath($api_url){
-		return $this->$api_ = $api_url;
+		return $this->api_ = $api_url;
 	}
 	public function setEnvironment($environment){
-		return $this->$env = $environment; //live or 
+		return $this->env = $environment; //live or 
 	}
 	
 	/*
@@ -112,7 +122,7 @@ class simplepay{
 	*/
 	public function ValidateSyncPaymentBrand($paymentBrand){
 		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, $this->$validSyncPaymentBrand) ){
+		if(in_array($paymentBrand, $this->validSyncPaymentBrand) ){
 			return array("result"=>true,"paymentBrand"=>$paymentBrand);
 		}
 		else
@@ -124,7 +134,7 @@ class simplepay{
 	*/
 	public function ValidateAsyncPaymentBrand($paymentBrand){
 		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, $this->$validAsyncPaymentBrand) ){
+		if(in_array($paymentBrand, $this->validAsyncPaymentBrand) ){
 			return array("result"=>true,"paymentBrand"=>$paymentBrand);
 		}
 		else
@@ -142,7 +152,7 @@ class simplepay{
 		    	return json_encode($isValid);
 		}
 	   
-	    $url = $this->$url;
+	    $url = $this->url;
 		$data = "authentication.userId=" .$syncParam->userId.
 			"&authentication.password=" .$syncParam->password.
 			"&authentication.entityId=" .$syncParam->entityId.
@@ -198,11 +208,11 @@ The next step is to redirect the account holder. To do this you must parse the '
             "&paymentBrand=" .$syncParam->paymentBrand.
             "&paymentType=" .$syncParam->paymentType.
             "&shopperResultUrl=" .$syncParam->shopperResultUrl;
-		return $this->postCurl($this->$url, $data);
+		return $this->postCurl($this->url, $data);
     }
 
 	public function getAsynPaymentStatus($syncParam){
-        $url = $this->$url."/".$syncParam->id;
+        $url = $this->url."/".$syncParam->id;
         //$url = "https://test.oppwa.com/v1/payments/{id}";
         $url .= "?authentication.userId=".$syncParam->userId;
         $url .= "&authentication.password=".$syncParam->password;
@@ -221,7 +231,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->$ssl_verifier);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -245,7 +255,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     	$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->$ssl_verifier);// this should be set to true in production
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$responseData = curl_exec($ch);
 		if(curl_errno($ch)) {
@@ -666,7 +676,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		else
 		{
 			if(!$response['result']){
-                $response_ = new SimplepayResponse($responseJson, false, array( "message"=>"Invalid Brand, valid brands are ".implode(",",$this->$validSyncPaymentBrand)));
+                $response_ = new SimplepayResponse($responseJson, false, array( "message"=>"Invalid Brand, valid brands are ".implode(",",$this->validSyncPaymentBrand)));
 		    	$return = 	$response_->getResponse();
 			}
 			else //some code here for false case
@@ -703,7 +713,7 @@ The next step is to redirect the account holder. To do this you must parse the '
 		else
 		{
 			if(!$response['result']){
-				$response_ = new SimplepayResponse($responseJson, false, array("message"=>"Invalid Brand, valid brands are ".implode(",",$this->$validSyncPaymentBrand)));
+				$response_ = new SimplepayResponse($responseJson, false, array("message"=>"Invalid Brand, valid brands are ".implode(",",$this->validSyncPaymentBrand)));
 			
 		   		$return = 	$response_->getResponse();	
 			}
@@ -850,6 +860,17 @@ The next step is to redirect the account holder. To do this you must parse the '
 		else
 			return true;
 
+	}
+
+	/*
+	*	Method to validate requsetObject if empty
+	*/
+	public function ValidateRequestObject($params){
+		if(empty($params))
+			throw new  PaymentGatewayVerificationFailedException("Error Processing Request", 1);
+		else
+			return true;
+			
 	}
 }
 ?>

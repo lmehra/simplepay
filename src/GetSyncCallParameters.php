@@ -2,7 +2,7 @@
 
 namespace Mansa\Simplepay;
 
-use Mansa\Simplepay\makePayment;
+use Mansa\Simplepay\Simplepay;
 
 
 /*
@@ -20,6 +20,7 @@ class GetSyncCallParameters{
 	public $cardcvv;
 	public $cardExpiryMonth;
 	public $cardExpiryYear;
+	
 	/*
 	* @createRegistration: Parameter required to set true if need to use tokenization
 	* 

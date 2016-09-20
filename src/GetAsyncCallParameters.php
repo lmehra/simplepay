@@ -1,14 +1,8 @@
-<?php namespace Mansa\Simplepay;
+<?php 
+namespace Mansa\Simplepay;
 
-use Mansa\Simplepay\makePayment;
+use Mansa\Simplepay\Simplepay;
 
-/*
- 
- Step 1: asynchronous_Step1() -- initiate the payment
- Step 2: require to redirect user to their payment gateway pages to confirm payment, etc.
- Step 3: getAsynPaymentStatus()  -- get their payment status
-
-*/
 class GetAsyncCallParameters{
 	
 	public $amount;

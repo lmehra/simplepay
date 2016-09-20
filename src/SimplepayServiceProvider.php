@@ -13,7 +13,7 @@ class SimplepayServiceProvider extends ServiceProvider
     public function boot()
     {
         // Route
-        //include __DIR__.'/routes.php';
+        include __DIR__.'/routes.php';
          $this->publishes([
             __DIR__.'/Config/simplepay.php' => config_path('simplepay.php'),
         ], 'config');
@@ -32,7 +32,7 @@ class SimplepayServiceProvider extends ServiceProvider
         });*/
          // Bind captcha
         $this->app->singleton(Simplepay::class, function ($app) {
-            return new Connection(config('simplepay'));
+            return new Simplepay(config('simplepay'));
         });
 
         $this->app->bind('Simplepay', function($app)

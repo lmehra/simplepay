@@ -40,17 +40,17 @@ class makePayment{
 		self::$ssl_verifier = self::$env == 'live'?true:false;
 		self::getEndpoint();
 		self::getUrl();
-		$this->setRequestObject();
+		self::setRequestObject();
 	}
 
 	/*
 	* Set default configuration variable
 	*/
 	public function setRequestObject(){
-		if(!empty($this->$reqestObject)){
-			$this->$reqestObject->userId = env('SIMPLEPAY_USER_ID',config("simplepay.userId"));
-			$this->$reqestObject->entityId = env('SIMPLEPAY_ENTITY_ID',config("simplepay.entityId"));
-			$this->$reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
+		if(!empty(self::$reqestObject)){
+			self::$reqestObject->userId = env('SIMPLEPAY_USER_ID',config("simplepay.userId"));
+			self::$reqestObject->entityId = env('SIMPLEPAY_ENTITY_ID',config("simplepay.entityId"));
+			self::$reqestObject->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
 		}
 	}
 	static function getReqestObject(){
