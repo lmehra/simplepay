@@ -4,7 +4,27 @@ Its a server-to-server Simplepay payment gateway library.
 # Install using composer:
 composer require mansa/simplepay dev-master
 
-#Simplepay server-to-server payment API note:
+
+# Setps of installation:
+1. Find the providers key in config/app.php and register the Simplepay Service Provider.
+'providers' => [
+        // ...
+        Mansa\Simplepay\SimplepayServiceProvider::class,
+    ]
+
+2. Find the aliases key in config/app.php
+
+    'aliases' => [
+        // ...
+        'Simplepay' => Mansa\Simplepay\Facades\Simplepay::class,
+    ]
+3. To use your own settings, publish config.
+
+	$ php artisan vendor:publish
+
+This is going to add config/simplepay.php file
+
+# Simplepay server-to-server payment API note:
 NOTE: You should be fully PCI compliant if you wish to perform an initial payment request server-to-server (as it requires that you collect the card data). If you are not fully PCI compliant, you can use Simplepay.js to collect the payment data securely.
 
 # Methods
