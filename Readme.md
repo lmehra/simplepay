@@ -56,6 +56,9 @@ SIMPLEPAY_TEST_ENDPOINT=https://test.oppwa.com/
 SIMPLEPAY_LIVE_ENDPOINT=https://oppwa.com/
 SIMPLEPAY_VERSION=v1
 SIMPLEPAY_API_ENVIRONMENT=test
+SIMPLEPAY_USER_ID = replace with your userId
+SIMPLEPAY_ENTITY_ID = replace with your entityid
+SIMPLEPAY_PASSWORD = replace with your password
 
 Synchronous workflow
 

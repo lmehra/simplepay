@@ -21,6 +21,7 @@ composer require mansa/simplepay dev-master
 3. To use your own settings, publish config.
 
 	$ php artisan vendor:publish
+
 This is going to add config/simplepay.php file
 
 # Simplepay server-to-server payment API note:
