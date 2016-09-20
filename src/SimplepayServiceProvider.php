@@ -1,5 +1,6 @@
 <?php namespace Mansa\Simplepay;
 
+use Mansa\Simplepay;
 use Illuminate\Support\ServiceProvider;
 
 class SimplepayServiceProvider extends ServiceProvider
