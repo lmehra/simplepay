@@ -1,6 +1,6 @@
 <?php namespace Mansa\Simplepay;
 
-use Mansa\Simplepay\makePay;
+use Mansa\Simplepay\Simplepay;
 
 class SimplepayResponse{
 	

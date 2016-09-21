@@ -4,16 +4,10 @@ use Mansa\Simplepay\Exceptions\VariableValidationException;
 use Mansa\Simplepay\Simplepay;
 
 class ResultCheck{
-	
-	public $endpoint;
-	public function __construct(){
-        $getVar = new Simplepay('');
-		$this->endpoint = $getVar::getEndpoint()."v1/";
-	}
-
-	/*
-	* Method returns all result status and regax to test the result type
-	*/
+    
+    /*
+    * Method returns all result status and regax to test the result type
+    */
     public function MatchResultCodes(){
         $resultCodes = array("success"=>array("/^(000\.000\.|000\.100\.1|000\.[36])/","state"=>1),
             "successShouldbeMannuallyReviewed"=>array("/^(000\.400\.0|000\.400\.100)/","state"=>1),
@@ -46,13 +40,14 @@ class ResultCheck{
     }
 
     /*
-	*	Method to check the result status via result code via result code return from simplepay API
-	*
+    *   Method to check the result status via result code via result code return from simplepay API
+    *
     */
     function checkResult($resultCode=false){ 
         try{
-            Simplepay::ValidateCheckResult($resultCode);
-        	//get the regax for checking result status
+            $pay = new Simplepay();
+            $pay->ValidateCheckResult($resultCode);
+            //get the regax for checking result status
             $resultCodes = $this->MatchResultCodes();
             $flag = false;
             $error = '';

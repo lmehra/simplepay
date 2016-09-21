@@ -7,22 +7,45 @@ composer require mansa/simplepay dev-master
 
 # Setps of installation:
 1. Find the providers key in config/app.php and register the Simplepay Service Provider.
-'providers' => [
-        // ...
-        Mansa\Simplepay\SimplepayServiceProvider::class,
-    ]
+		'providers' => [
+	        // ...
+	        Mansa\Simplepay\SimplepayServiceProvider::class,
+	    ]
 
 2. Find the aliases key in config/app.php
 
-    'aliases' => [
-        // ...
-        'Simplepay' => Mansa\Simplepay\Facades\Simplepay::class,
-    ]
+	    'aliases' => [
+	        // ...
+	        'Simplepay' => Mansa\Simplepay\Facade\Simplepay::class,
+	    ]
 3. To use your own settings, publish config.
 
 	$ php artisan vendor:publish
 
 This is going to add config/simplepay.php file
+
+
+# Examples:
+At the top of your controller add line
+ 
+ use Simplepay
+
+//Intialize object
+$obj=Simplepay::setObj();
+
+//add parameters
+$obj->currency = "USD";
+$obj->paymentBrand = "VISA";
+$obj->paymentType = "DB";
+$obj->amount = "92.00";
+$obj->cardNumber = "4200000000000000";
+$obj->cardHolder = "Mr. Abc";
+$obj->cardcvv = "125";
+$obj->cardExpiryMonth = "02";
+$obj->cardExpiryYear = "2019";
+
+//call simplepay method
+$result = simplepay::requestSyncPayment($obj);
 
 # Simplepay server-to-server payment API note:
 NOTE: You should be fully PCI compliant if you wish to perform an initial payment request server-to-server (as it requires that you collect the card data). If you are not fully PCI compliant, you can use Simplepay.js to collect the payment data securely.
@@ -45,6 +68,11 @@ MASTER
 AMEX
 ALIPAY
 CHINAUNIONPAY
+
+
+Asynchoronus methods
+- requestAsyncPayment
+- createTokenWithoutPayment
 
 
 # Path to Config file:
@@ -92,8 +120,8 @@ NOTE: You should be fully PCI compliant if you wish to perform tokenization requ
 Method details:
 
 1. createTokenWithPayment:
-/**
-* Method to create token and make payment synchronously.
+
+ Method to create token and make payment synchronously.
 * Requires:
 * @param string userId
 * @param string entityId
@@ -107,30 +135,27 @@ Method details:
 * @param int cardExpiryMonth
 * @param int cardExpiryYear
 * @param string cardcvv
-*/
+
 
 2. createTokenWithoutPayment:
 
-/**
-* Method to create token of user's credit card without making payment
+
+ Method to create token of user's credit card without making payment
 * Requires:
 * @param string userId
-* @param string entityId
 * @param string password
-* @param float amount
-* @param string currency
+* @param string entityId
 * @param string paymentBrand
-* @param string paymentType
 * @param int cardNumber
 * @param string cardHolder
 * @param int cardExpiryMonth
 * @param int cardExpiryYear
-* @param string cardcvv
-*/
+* @param int cardcvv
+
 
 3. makeOneClickPayment:
-/**
-* Method to make payment in One Click
+
+ Method to make payment in One Click
 * Requires:
 * @param string userId
 * @param string entityId
@@ -139,7 +164,7 @@ Method details:
 * @param string currency
 * @param string paymentType
 * @param int registrationId
-*/
+
 
  One-Click payment : 
 	This method reqires 3 steps:
@@ -152,7 +177,7 @@ Method details:
 
 		The information that you might want to store, per customer, in order to execute a One-Click payment includes:
 
-		    registration.id (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
+		    registrationId (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
 		    account brand: brand of customer's card 
 		    last four digits of account number
 		    expiry date (if applicable)
@@ -166,20 +191,19 @@ Method details:
 
 4. makeDeleteTokenRequest:
 
-/**
-* Method to make call for deleting the already existing user token
-* Once stored, a token can be deleted against the registration.id: 
+ Method to make call for deleting the already existing user token
+ Once stored, a token can be deleted against the registration.id: 
 * Requires:
 * @param string userId
 * @param string entityId
 * @param string password
 * @param int registrationId
-*/
+
 
 5. requestSyncPayment:
 
-/**
-* Method for making payment in a single step using server-to-server and receive the payment response synchronously.
+
+ Method for making payment in a single step using server-to-server and receive the payment response synchronously.
 * Requires:
 * @param string userId
 * @param string entityId
@@ -193,12 +217,11 @@ Method details:
 * @param int cardExpiryMonth
 * @param int cardExpiryYear
 * @param string cardcvv
-*/
+
 
 6. requestAsyncPayment:
 
-/**
-* Method to request for sending Initial Payment Request via Async method
+ Method to request for sending Initial Payment Request via Async method
 * Requires:
 * @param string userId
 * @param string entityId
@@ -208,23 +231,21 @@ Method details:
 * @param string paymentBrand
 * @param string shopperResultUrl
 * @param string paymentType
-*/
+
 
 7.requestPaymentStatus:
 
-/**
-* Method to make request for payment status of both Async and Sync payments
+Method to make request for payment status of both Async and Sync payments
 * Requires:
 * @param string userId
 * @param string entityId
 * @param string password
 * @param string id
-*/
+
 
 8. createTokenWithInitialRecurringPayment:
 
-/**
-* Method to create token and make payment synchronously.
+Method to create token and make payment synchronously.
 * Requires:
 * @param string userId
 * @param string entityId
@@ -238,12 +259,11 @@ Method details:
 * @param int cardExpiryMonth
 * @param int cardExpiryYear
 * @param string cardcvv
-*/
+
 
 9. requestRecurringPaymentWithToken:
 
-/**
-* Method to create token and make payment synchronously.
+Method to create token and make payment synchronously.
 * Requires:
 * @param string userId
 * @param string entityId
@@ -257,8 +277,6 @@ Method details:
 * @param int cardExpiryMonth
 * @param int cardExpiryYear
 * @param string cardcvv
-*/
+
 
 How simplepay works: https://docs.simplepays.com/tutorials/server-to-server
-
-

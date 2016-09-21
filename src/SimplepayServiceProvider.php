@@ -1,6 +1,7 @@
-<?php namespace Mansa\Simplepay;
+<?php 
+namespace Mansa\Simplepay;
 
-use Mansa\Simplepay;
+use Mansa\Simplepay\Simplepay;
 use Illuminate\Support\ServiceProvider;
 
 class SimplepayServiceProvider extends ServiceProvider
@@ -13,8 +14,7 @@ class SimplepayServiceProvider extends ServiceProvider
     public function boot()
     {
         // Route
-        //include __DIR__.'/routes.php';
-         $this->publishes([
+        $this->publishes([
             __DIR__.'/Config/simplepay.php' => config_path('simplepay.php'),
         ], 'config');
     }
@@ -27,25 +27,9 @@ class SimplepayServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom( __DIR__.'/Config/simplepay.php', 'simplepay');
-        /*$this->app['Simplepay'] = $this->app->share(function($app) {
-            return new makePayment;
-        });*/
-         // Bind captcha
-        $this->app->singleton(Simplepay::class, function ($app) {
-            return new Simplepay(config('simplepay'));
-        });
 
-        $this->app->bind('Simplepay', function($app)
-        {
-            return new Simplepay(
-                $app['Mansa\Simplepay\GetSyncCallParameters'],
-                $app['Mansa\Simplepay\GetAsyncCallParameters'],
-                $app['Mansa\Simplepay\Exceptions\PaymentGatewayVerificationFailedException'],
-                $app['Mansa\Simplepay\Exceptions\VariableValidationException'],
-                $app['Mansa\Simplepay\ResultCheck'],
-                $app['Mansa\Simplepay\SimplepayResponse'],
-                $app['BadMethodCallException']
-            );
+         $this->app->singleton('simplepay', function () {
+            return new simplepay(); 
         });
     }
 }
