@@ -171,48 +171,51 @@ Method details:
 1. createTokenWithPayment:
 
  Method to create token and make payment synchronously.
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentBrand
-* @param string paymentType
-* @param int cardNumber
-* @param string cardHolder
-* @param int cardExpiryMonth
-* @param int cardExpiryYear
-* @param string cardcvv
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentBrand
+	* @param string paymentType
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param string cardcvv
 
 
 2. createTokenWithoutPayment:
 
 
  Method to create token of user's credit card without making payment
-* Requires:
-* @param string userId
-* @param string password
-* @param string entityId
-* @param string paymentBrand
-* @param int cardNumber
-* @param string cardHolder
-* @param int cardExpiryMonth
-* @param int cardExpiryYear
-* @param int cardcvv
+
+	* Requires:
+	* @param string userId
+	* @param string password
+	* @param string entityId
+	* @param string paymentBrand
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param int cardcvv
 
 
 3. makeOneClickPayment:
 
  Method to make payment in One Click
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentType
-* @param int registrationId
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentType
+	* @param int registrationId
 
 
  One-Click payment : 
@@ -242,90 +245,96 @@ Method details:
 
  Method to make call for deleting the already existing user token
  Once stored, a token can be deleted against the registration.id: 
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param int registrationId
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param int registrationId
 
 
 5. requestSyncPayment:
 
 
  Method for making payment in a single step using server-to-server and receive the payment response synchronously.
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentBrand
-* @param string paymentType
-* @param int cardNumber
-* @param string cardHolder
-* @param int cardExpiryMonth
-* @param int cardExpiryYear
-* @param string cardcvv
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentBrand
+	* @param string paymentType
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param string cardcvv
 
 
 6. requestAsyncPayment:
 
  Method to request for sending Initial Payment Request via Async method
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentBrand
-* @param string shopperResultUrl
-* @param string paymentType
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentBrand
+	* @param string shopperResultUrl
+	* @param string paymentType
 
 
 7.requestPaymentStatus:
 
 Method to make request for payment status of both Async and Sync payments
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param string id
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param string id
 
 
 8. createTokenWithInitialRecurringPayment:
 
 Method to create token and make payment synchronously.
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentBrand
-* @param string paymentType
-* @param int cardNumber
-* @param string cardHolder
-* @param int cardExpiryMonth
-* @param int cardExpiryYear
-* @param string cardcvv
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentBrand
+	* @param string paymentType
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param string cardcvv
 
 
 9. requestRecurringPaymentWithToken:
 
 Method to create token and make payment synchronously.
-* Requires:
-* @param string userId
-* @param string entityId
-* @param string password
-* @param float amount
-* @param string currency
-* @param string paymentBrand
-* @param string paymentType
-* @param int cardNumber
-* @param string cardHolder
-* @param int cardExpiryMonth
-* @param int cardExpiryYear
-* @param string cardcvv
+
+	* Requires:
+	* @param string userId
+	* @param string entityId
+	* @param string password
+	* @param float amount
+	* @param string currency
+	* @param string paymentBrand
+	* @param string paymentType
+	* @param int cardNumber
+	* @param string cardHolder
+	* @param int cardExpiryMonth
+	* @param int cardExpiryYear
+	* @param string cardcvv
 
 
 How simplepay works: https://docs.simplepays.com/tutorials/server-to-server
