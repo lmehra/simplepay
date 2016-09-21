@@ -123,11 +123,11 @@ AMEX
 ALIPAY
 CHINAUNIONPAY
 
-Asynchoronus methods Support following brands:
+Asynchronous methods Support following brands:
 	ALIPAY
 	CHINAUNIONPAY
 
-Synchoronus methods supprts following brands:
+Synchronous methods supprts following brands:
 	VISA
 	MASTER
 	AMEX
