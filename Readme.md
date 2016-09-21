@@ -74,7 +74,7 @@ At the top of your controller add line
 		
 Results:
 
-If all parameters are correct then API will return the following array structure: 
+If all parameters are correct then API will return the following array structure. 
 Please note the in test mode the message will be "Request successfully processed in 'Merchant in Integrator Test Mode'"
 
 		array(6) {
