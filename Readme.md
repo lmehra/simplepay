@@ -1,25 +1,27 @@
 # Simplepay:
-Its a server-to-server Simplepay payment gateway library.
-
-# Install using composer:
-composer require mansa/simplepay dev-master
+A simple laravel 5 server-to-server Simplepay payment gateway library.
 
 
-# Setps of installation:
-1. Find the providers key in config/app.php and register the Simplepay Service Provider.
+# Setps for installation:
+1. Use following command in your terminal to install this library:
+
+	composer require mansa/simplepay dev-master
+
+2. Update the poviders in config/app.php
 		
 		'providers' => [
 	        // ...
 	        Mansa\Simplepay\SimplepayServiceProvider::class,
 	    ]
 
-2. Find the aliases key in config/app.php
+3. Update the aliases in config/app.php
 
 	    'aliases' => [
 	        // ...
 	        'Simplepay' => Mansa\Simplepay\Facade\Simplepay::class,
 	    ]
-3. add following line in autoload
+
+4. Add following line in composer.json in your project root only
 
 		 "autoload": {
 		        "psr-4": {
@@ -28,9 +30,12 @@ composer require mansa/simplepay dev-master
 		            "Mansa\\Simplepay\\": "src/"
 		        }
 		    },
-4. use composer command "composer dumpautoload".
 
-5. To use your own settings, publish config.
+5. Use composer command in your terminal
+
+		composer dumpautoload
+
+6. To use your own settings, publish config.
 
 		$ php artisan vendor:publish
 
@@ -39,11 +44,13 @@ This is going to add config/simplepay.php file
 
 # Examples:
 At the top of your controller add line
- 
- use Simplepay
 
-//Intialize object
+ 		//add name space in your controller
+ 		use Simplepay
 
+ 		//In controller action, add the following code
+
+		//Get the request object, this is going to hold all your parameters
 		$obj=Simplepay::setObj();
 
 		//add parameters
@@ -57,9 +64,10 @@ At the top of your controller add line
 		$obj->cardExpiryMonth = "02";
 		$obj->cardExpiryYear = "2019";
 
-		//call simplepay method
+		//Now we are ready to make our call, this is going to make your direct payment in simplepay gateway
 		$result = simplepay::requestSyncPayment($obj);
 
+		//Here you can check the response returned by simplepay gateway
 		var_dump($result);
 		
 Results:
@@ -114,7 +122,6 @@ MASTER
 AMEX
 ALIPAY
 CHINAUNIONPAY
-
 
 Asynchoronus methods Support following brands:
 	ALIPAY
