@@ -3,7 +3,7 @@ A simple laravel 5 server-to-server Simplepay payment gateway library.
 
 
 # Setps for installation:
-1. Use following command in your terminal to install this library:
+1. Use following command in your terminal to install this library. (Currently the library is in development mode):
 
 	composer require mansa/simplepay dev-master
 
