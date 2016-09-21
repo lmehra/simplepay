@@ -45,7 +45,7 @@ NOTE: Make sure you have curl install in your system.
 
 
 # Examples:
-At the top of your controller add line
+Please find the example below:
 
  		//add name space in your controller
  		use Simplepay
