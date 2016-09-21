@@ -74,13 +74,14 @@ At the top of your controller add line
 		
 Results:
 
-If every parameter is correct then following result will display
+If all parameters are correct then API will return the following array structure: 
+Please note the in test mode the message will be "Request successfully processed in 'Merchant in Integrator Test Mode'"
 
 		array(6) {
 		  ["isSuccess"]=>
 		  bool(true)
 		  ["message"]=>
-		  string(68) "Request successfully processed in 'Merchant in Integrator Test Mode'"
+		  string(68) "Request successfully processed"
 		  ["code"]=>
 		  string(11) "000.100.110"
 		  ["crud"]=>
