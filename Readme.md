@@ -41,6 +41,8 @@ A simple laravel 5 server-to-server Simplepay payment gateway library.
 
 This is going to add config/simplepay.php file
 
+NOTE: Make sure you have curl install in your system.
+
 
 # Examples:
 At the top of your controller add line
