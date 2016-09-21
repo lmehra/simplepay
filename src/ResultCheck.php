@@ -44,28 +44,23 @@ class ResultCheck{
     *
     */
     function checkResult($resultCode=false){ 
-        try{
-            $pay = new Simplepay();
-            $pay->ValidateCheckResult($resultCode);
-            //get the regax for checking result status
-            $resultCodes = $this->MatchResultCodes();
-            $flag = false;
-            $error = '';
-            $state = 0;
+        $pay = new Simplepay();
+        $pay->ValidateCheckResult($resultCode);
+        //get the regax for checking result status
+        $resultCodes = $this->MatchResultCodes();
+        $flag = false;
+        $error = '';
+        $state = 0;
 
-            foreach($resultCodes as $key =>$code){
+        foreach($resultCodes as $key =>$code){
 
-               if(preg_match($code[0], $resultCode))
-               {
-                    $flag = true;
-                    $error = $key;
-                    $state = $code['state'];
-                    return array("state"=>$state,"message"=>$key,"flag"=>$flag,"code"=>$resultCode);
-               }
-            }
-        }
-        catch(VariableValidationException $e){
-            echo $e->getMessage();die;
+           if(preg_match($code[0], $resultCode))
+           {
+                $flag = true;
+                $error = $key;
+                $state = $code['state'];
+                return array("state"=>$state,"message"=>$key,"flag"=>$flag,"code"=>$resultCode);
+           }
         }
     }
 }

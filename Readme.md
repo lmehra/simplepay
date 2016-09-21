@@ -18,7 +18,18 @@ composer require mansa/simplepay dev-master
 	        // ...
 	        'Simplepay' => Mansa\Simplepay\Facade\Simplepay::class,
 	    ]
-3. To use your own settings, publish config.
+3. add following line in autoload
+
+ "autoload": {
+        "psr-4": {
+	        ......
+	        ......
+            "Mansa\\Simplepay\\": "src/"
+        }
+    },
+4. use composer command "composer dumpautoload".
+
+5. To use your own settings, publish config.
 
 	$ php artisan vendor:publish
 
@@ -47,6 +58,36 @@ $obj->cardExpiryYear = "2019";
 //call simplepay method
 $result = simplepay::requestSyncPayment($obj);
 
+
+Results:
+
+If every parameter is correct then following result will display
+array(6) {
+  ["isSuccess"]=>
+  bool(true)
+  ["message"]=>
+  string(68) "Request successfully processed in 'Merchant in Integrator Test Mode'"
+  ["code"]=>
+  string(11) "000.100.110"
+  ["crud"]=>
+  string(579) "{"id":"8a82944a571dace401574ca1d2ec4290","paymentType":"DB","paymentBrand":"VISA","amount":"92.00","currency":"USD","descriptor":"5486.6167.4658 OPP_Channel ","result":{"code":"000.100.110","description":"Request successfully processed in 'Merchant in Integrator Test Mode'"},"card":{"bin":"420000","last4Digits":"0000","expiryMonth":"02","expiryYear":"2019"},"risk":{"score":"100"},"buildNumber":"34cf17be72dfb23fff3ba15de38c948bcddfcca6@2016-09-20 10:54:39 +0000","timestamp":"2016-09-21 12:04:16+0000","ndc":"8a8294184e542a5c014e691d33f808c8_b86252609caf47ce8bd7ab309dd425b1"}"
+  ["registrationId"]=>
+  bool(false)
+  ["id"]=>
+  string(32) "8a82944a571dace401574ca1d2ec4290"
+}
+
+If case of error or missing parameters
+Errors are thrown using classes 
+- VariableValidationException
+- PaymentGatewayVerificationFailedException
+
+For example:
+throw new PaymentGatewayVerificationFailedException("No params found", 1);
+
+throw new VariableValidationException("Parameter result.code is missing", 1);
+
+
 # Simplepay server-to-server payment API note:
 NOTE: You should be fully PCI compliant if you wish to perform an initial payment request server-to-server (as it requires that you collect the card data). If you are not fully PCI compliant, you can use Simplepay.js to collect the payment data securely.
 
@@ -70,10 +111,14 @@ ALIPAY
 CHINAUNIONPAY
 
 
-Asynchoronus methods
-- requestAsyncPayment
-- createTokenWithoutPayment
+Asynchoronus methods Support following brands:
+	ALIPAY
+	CHINAUNIONPAY
 
+Synchoronus methods supprts following brands:
+	VISA
+	MASTER
+	AMEX
 
 # Path to Config file:
 /src/Config/simplepay.php
