@@ -60,7 +60,8 @@ At the top of your controller add line
 		//call simplepay method
 		$result = simplepay::requestSyncPayment($obj);
 
-
+		var_dump($result);
+		
 Results:
 
 If every parameter is correct then following result will display
