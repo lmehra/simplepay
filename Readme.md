@@ -7,6 +7,7 @@ composer require mansa/simplepay dev-master
 
 # Setps of installation:
 1. Find the providers key in config/app.php and register the Simplepay Service Provider.
+		
 		'providers' => [
 	        // ...
 	        Mansa\Simplepay\SimplepayServiceProvider::class,
@@ -42,6 +43,7 @@ At the top of your controller add line
  use Simplepay
 
 //Intialize object
+
 		$obj=Simplepay::setObj();
 
 		//add parameters
@@ -62,6 +64,7 @@ At the top of your controller add line
 Results:
 
 If every parameter is correct then following result will display
+
 		array(6) {
 		  ["isSuccess"]=>
 		  bool(true)
@@ -83,6 +86,7 @@ Errors are thrown using classes
 - PaymentGatewayVerificationFailedException
 
 For example:
+
 		throw new PaymentGatewayVerificationFailedException("No params found", 1);
 
 		throw new VariableValidationException("Parameter result.code is missing", 1);
@@ -121,17 +125,17 @@ Synchoronus methods supprts following brands:
 	AMEX
 
 # Path to Config file:
-/src/Config/simplepay.php
+		/src/Config/simplepay.php
 
 # Environment variables used:
 
-SIMPLEPAY_TEST_ENDPOINT=https://test.oppwa.com/
-SIMPLEPAY_LIVE_ENDPOINT=https://oppwa.com/
-SIMPLEPAY_VERSION=v1
-SIMPLEPAY_API_ENVIRONMENT=test
-SIMPLEPAY_USER_ID = replace with your userId
-SIMPLEPAY_ENTITY_ID = replace with your entityid
-SIMPLEPAY_PASSWORD = replace with your password
+		SIMPLEPAY_TEST_ENDPOINT=https://test.oppwa.com/
+		SIMPLEPAY_LIVE_ENDPOINT=https://oppwa.com/
+		SIMPLEPAY_VERSION=v1
+		SIMPLEPAY_API_ENVIRONMENT=test
+		SIMPLEPAY_USER_ID = replace with your userId
+		SIMPLEPAY_ENTITY_ID = replace with your entityid
+		SIMPLEPAY_PASSWORD = replace with your password
 
 Synchronous workflow
 
