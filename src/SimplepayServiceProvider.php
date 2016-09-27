@@ -28,8 +28,8 @@ class SimplepayServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom( __DIR__.'/Config/simplepay.php', 'simplepay');
 
-         $this->app->singleton('simplepay', function () {
-            return new simplepay(); 
+        $this->app->singleton('simplepay', function () {
+            return new Simplepay(); 
         });
     }
 }

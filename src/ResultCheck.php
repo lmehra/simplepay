@@ -1,10 +1,17 @@
 <?php namespace Mansa\Simplepay;
 
-use Mansa\Simplepay\Exceptions\VariableValidationException;
 use Mansa\Simplepay\Simplepay;
 
 class ResultCheck{
     
+    /**
+    * string
+    */
+    private $resultCode;
+
+    public function __construct($resultCode = false){
+        $this->resultCode = $resultCode;
+    }
     /*
     * Method returns all result status and regax to test the result type
     */
@@ -43,25 +50,29 @@ class ResultCheck{
     *   Method to check the result status via result code via result code return from simplepay API
     *
     */
-    function checkResult($resultCode=false){ 
-        $pay = new Simplepay();
-        $pay->ValidateCheckResult($resultCode);
-        //get the regax for checking result status
-        $resultCodes = $this->MatchResultCodes();
-        $flag = false;
-        $error = '';
-        $state = 0;
+    function checkResult(){ 
 
-        foreach($resultCodes as $key =>$code){
+        if(!empty($this->resultCode)){
+            $pay = new Simplepay();
+            $pay->checkIfVariablesExist($this->resultCode,"Parameter result.code is missing");
+            //get the regax for checking result status
+            $resultCodes = $this->MatchResultCodes();
+            $flag = false;
+            $error = '';
+            $state = 0;
 
-           if(preg_match($code[0], $resultCode))
-           {
-                $flag = true;
-                $error = $key;
-                $state = $code['state'];
-                return array("state"=>$state,"message"=>$key,"flag"=>$flag,"code"=>$resultCode);
-           }
+            foreach($resultCodes as $key =>$code){
+
+               if(preg_match($code[0], $resultCode))
+               {
+                    $flag = true;
+                    $error = $key;
+                    $state = $code['state'];
+                    return array("state"=>$state,"message"=>$key,"flag"=>$flag,"code"=>$resultCode);
+               }
+            }
         }
+        return false;
     }
 }
 ?>

@@ -282,7 +282,7 @@ Method details:
 
 6. requestAsyncPayment:
 
- Method to request for sending Initial Payment Request via Async method. 
+ Method to request for sending Initial Payment Request via Async method. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id.
 
 	* Requires:
 	* @param string userId

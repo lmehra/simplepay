@@ -1,6 +1,7 @@
 <?php namespace Mansa\Simplepay;
 
 use Mansa\Simplepay\Simplepay;
+use Mansa\Simplepay\ResultCheck;
 
 class SimplepayResponse{
 	
@@ -10,18 +11,12 @@ class SimplepayResponse{
 	private $responseData;
 
 	/**
-	*  @var intenger
-	*/
-	private $resultState;
-
-	/**
 	*  @var array contains extra response data
 	*/
 	private $extraArray;
 
-	public function __construct($responseJson = false, $resultState = false, $extraArray = false){
+	public function __construct($responseJson = false, $extraArray = false){
 		$this->responseData = $responseJson;
-		$this->resultState = $resultState;	
 		$this->extraArray = $extraArray;
 	}
 
@@ -32,20 +27,51 @@ class SimplepayResponse{
 	public function getResponse(){
 
 		$response = json_decode($this->responseData,true);
+		
+		$checkResult = new ResultCheck();   
+		$resultCode =!empty($response['result']['code'])?$response['result']['code']:false;
+    	$result = $checkResult->checkResult($resultCode);
+    	$returnArr = [];
 
 		$returnArr =  array(
-			"isSuccess"=>($this->resultState == 1 || $this->resultState == 2)?true:false,
+			"isSuccess"=>($result && ( $result == 1 || $result == 2))?true:false,
 			"message"=>!empty($response['result']['description'])?$response['result']['description']:"Failed to receive response from API server",
 			"code"=>!empty($response['result']['code'])?$response['result']['code']:"--",
 			"crud"=>$this->responseData
 		);
-		
+		$returnArr_ = $this->addAdditionalResultAttributes($response);
+
 		if(!empty($this->extraArray)){
 			foreach($this->extraArray as $key => $value)
-				$returnArr[$key]=$value;
+			$returnArr[$key]=$value;
+		}
+
+		//merge is returnArr_ is not empty
+		if(!empty($returnArr_)){
+			foreach($returnArr_ as $key => $value)
+				$returnArr[$key] = $value;	
 		}
 
 		return $returnArr;
+	}
+
+	/*
+	* Method to return more attributes from the server response
+	*/
+	public function addAdditionalResultAttributes($response = false){
+
+		if(!empty($response)){
+			$res  = [];
+			$res['redirect_url'] = !empty($response['redirect']['url'])?$response['redirect']['url']:false;
+    		$res['method'] = !empty($response['redirect']['method'])?$response['redirect']['method']:false;
+    		$res['parameters'] = !empty($response['redirect']['parameters'])?$response['redirect']['parameters']:false;
+    		$res['id'] = !empty($response['id'])?$response['id']:"";
+    		$res['registrationId'] = !empty($response['registrationId'])?$response['registrationId']:false;
+
+    		//filter this array and remove all empty elements
+       		return array_filter($res);
+		}
+		return false;
 	}
 }
 
