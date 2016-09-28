@@ -288,8 +288,8 @@ Method details:
 
 Method to make request for payment status. Parameter 'id' can be fetched using token registration methods (response variable 'id' or 'registration' can be used). 
 
-	* Requires:
-	* @param string id
+* Requires:
+* @param string id
 
 
 8. createTokenWithInitialRecurringPayment:
