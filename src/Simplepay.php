@@ -18,7 +18,7 @@ class Simplepay{
 	private $endpoint;
 	private $params = [];
 	private $ssl_verifier;
-
+	private $isPostRequestType = true;
 	/*
 	* Valid brands are Visa (VISA), MasterCard (MASTER) and American Express (AMEX)
 	*/
@@ -37,25 +37,6 @@ class Simplepay{
 		$this->ssl_verifier = $this->env == 'live'?true:false;
 		$this->getEndpoint();
 		$this->getUrl();
-	}
-
-	/*
-	* Set default configuration variable
-	*/
-	public function setObj(){
-		return new \stdClass();
-	}
-
-	public function getObj($obj){
-		return $obj;
-	}
-	/*
-	* Set default configuration variable
-	*/
-	public function setRequestObject($syncParam){
-		$syncParam->userId = env('SIMPLEPAY_USER_ID',config("simplepay.userId"));
-		$syncParam->entityId = env('SIMPLEPAY_ENTITY_ID',config("simplepay.entityId"));
-		$syncParam->password = env('SIMPLEPAY_PASSWORD',config("simplepay.password"));
 	}
 
 	public function getEndpoint(){
@@ -107,120 +88,6 @@ class Simplepay{
 		return $this->env = $environment; //live or 
 	}
 	
-	/*
-	* Method to validate payment type for synchronize payments
-	*/
-	public function ValidateSyncPaymentBrand($paymentBrand){
-		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, $this->validSyncPaymentBrand) ){
-			return array("result"=>true,"paymentBrand"=>$paymentBrand);
-		}
-		else
-			return array("result"=>false,"paymentBrand"=>$paymentBrand);
-	}
-
-	/*
-	* Method to validate payment type for synchronize payments
-	*/
-	public function ValidateAsyncPaymentBrand($paymentBrand){
-		$paymentBrand = strtoupper($paymentBrand);
-		if(in_array($paymentBrand, $this->validAsyncPaymentBrand) ){
-			return array("result"=>true,"paymentBrand"=>$paymentBrand);
-		}
-		else
-			return array("result"=>false,"paymentBrand"=>$paymentBrand,"errorCode"=>"","message"=>"Invalid Payment Brand");
-	}
-
-	public function curl_Connect($syncParam) {
-		if(!empty($syncParam->paymentBrand)){
-		    //check if the payment brand is valid
-		    $isValid = $this->ValidateSyncPaymentBrand($syncParam->paymentBrand);
-
-		     //if not valie payment brand then show error
-		    if(!$isValid['result'])
-		    	return json_encode($isValid);
-		}
-
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-	    $url = $this->url;
-		$data = "currency=".(!empty($syncParam->currency)?$syncParam->currency:'').
-			"&authentication.userId=" .$syncParam->userId.
-			"&authentication.password=" .$syncParam->password.
-			"&authentication.entityId=" .$syncParam->entityId.
-			"&amount=" .(!empty($syncParam->amount)?$syncParam->amount:'').
-			"&paymentBrand=" .(!empty($syncParam->paymentBrand)?$syncParam->paymentBrand:'').
-			"&paymentType=" .(!empty($syncParam->paymentType)?$syncParam->paymentType:'').
-			"&card.number=" .(!empty($syncParam->cardNumber)?$syncParam->cardNumber:'').
-			"&card.holder=" .(!empty($syncParam->cardHolder)?$syncParam->cardHolder:'').
-			"&card.expiryMonth=" .(!empty($syncParam->cardExpiryMonth)?$syncParam->cardExpiryMonth:'').
-			"&card.expiryYear=" .(!empty($syncParam->cardExpiryYear)?$syncParam->cardExpiryYear:'').
-			"&card.cvv=".(!empty($syncParam->cardcvv)?$syncParam->cardcvv:'');
-
-		if(!empty($syncParam->createRegistration))
-			$data .= "&createRegistration=true";
-
-		if(!empty($syncParam->recurringType) && strtoupper($syncParam->recurringType) == 'INITIAL'){
-			$data .= "&createRegistration=true";
-			$data .= "&recurringType=INITIAL";
-		}
-
-		if(!empty($syncParam->recurringType) && strtoupper($syncParam->recurringType) == 'REPEATED'){
-			$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId."/payments";
-			$data = "currency=".(!empty($syncParam->currency)?$syncParam->currency:'').
-				"&authentication.userId=" .$syncParam->userId.
-				"&authentication.password=" .$syncParam->password.
-				"&authentication.entityId=" .$syncParam->entityId.
-				"&amount=" .(!empty($syncParam->amount)?$syncParam->amount:'').
-				"&paymentType=" .(!empty($syncParam->paymentType)?$syncParam->paymentType:'');
-			$data .= "&recurringType=REPEATED";
-		}
-		return $this->curl_request($url, 'POST', false, $data);
-	}
-
-
-/*
-After asynchronous_Step1, you need to follow the following guideline:
-
-The next step is to redirect the account holder. To do this you must parse the 'redirect_url' from the Initial Payment response along with any parameters. If parameters are present they should be POST in the redirect, otherwise a straight forward redirect to the 'redirect_url' is sufficient.
-*/
-	public function asynchronous_Step1($syncParam){
-
-		if(!empty($syncParam->paymentBrand)){
-	       //check if the payment brand is valid
-	        $isValid = $this->ValidateAsyncPaymentBrand($syncParam->paymentBrand);
-
-		    if(!$isValid['result'])
-		    	return json_encode($isValid);
-		}
-	   
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-        $data =	"currency=".(!empty($syncParam->currency)?$syncParam->currency:'').
-        	"&authentication.userId=" .$syncParam->userId.
-            "&authentication.password=" .$syncParam->password.
-            "&authentication.entityId=" .$syncParam->entityId.
-            "&amount=".(!empty($syncParam->amount)?$syncParam->amount:'').
-            "&paymentBrand=" .(!empty($syncParam->paymentBrand)?$syncParam->paymentBrand:"").
-            "&paymentType=" .(!empty($syncParam->paymentType)?$syncParam->paymentType:"").
-            "&shopperResultUrl=" .(!empty($syncParam->shopperResultUrl)?$syncParam->shopperResultUrl:"");
-		return $this->curl_request($this->url, 'POST', false, $data);
-    }
-
-	public function getAsynPaymentStatus($syncParam){
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-        $url = $this->url."/".$syncParam->id;
-        $url .= "?authentication.userId=".$syncParam->userId;
-        $url .= "&authentication.password=".$syncParam->password;
-        $url .= "&authentication.entityId=".$syncParam->entityId;
-		return $this->curl_request($url, 'GET');
-
-    }
-
     /**
 	* Method to make curl requests using post & get methods
 	* Requires:
@@ -229,11 +96,12 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string requestMethod
 	* @param string requestType
 	*/
-    public function curl_request($url, $requestMethod = 'POST', $requestType = false, $data = false){
+    public function curl_request($url, $isPostRequest = true, $requestType = false, $data = false){
 
     	$ch = curl_init();
-		if(strtoupper($requestMethod) == 'GET')
+		if(!$isPostRequest)
 		{
+			$request =  'GET';
 			if($requestType == 'deleteToken')
     			$request = 'DELETE';
 
@@ -255,98 +123,36 @@ The next step is to redirect the account holder. To do this you must parse the '
 		return $responseData;
 
     }
-	//----------------- tokenization ---------------------------
-    /**
-	* Register user's card for tokenization ( No payment required )
-	* Contrary to the registration as part of a payment, you directly receive a registration object in  * your response. Therefore the ID to reference this data during later payments is the value of field * id.
-	* Requires:
-	* @param string userId
-	* @param string password
-	* @param string entityId
-	* @param string paymentBrand
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param int cardcvv
-    */
-    public function storeStandAloneData($syncParam){
+	/**
+	* dynamically set parameters for curl call
+	*/
+	public function curlConnect($syncParam, $isPostRequest, $url = false, $requestType = false, $asyncValidate = false){
+		
+		if(!empty($syncParam['paymentBrand'])){
+		    //check if the payment brand is valid
+		    if($isPostRequest && !$asyncValidate)
+		    	$isValid = $this->ValidateSyncPaymentBrand($syncParam['paymentBrand']);
+		    else 
+		    	$isValid = $this->ValidateAsyncPaymentBrand($syncParam['paymentBrand']);
 
-    	if(!empty($syncParam->paymentBrand)){
-	    	  //check if the payment brand is valid
-		    $isValid = $this->ValidateSyncPaymentBrand($syncParam->paymentBrand);
-
-		    //if not valid payment brand then show error
+		     //if not valie payment brand then show error
 		    if(!$isValid['result'])
 		    	return json_encode($isValid);
 		}
-		else
-			return false;
 
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-    	$url = $this->getEndpoint().$this->getVersion()."/registrations";
-    	$data = "authentication.userId=" .$syncParam->userId.
-            "&authentication.password=" .$syncParam->password.
-            "&authentication.entityId=" .$syncParam->entityId.
-			"&paymentBrand=".(!empty($syncParam->paymentBrand)?$syncParam->paymentBrand:'').
-			"&card.number=" .(!empty($syncParam->cardNumber)?$syncParam->cardNumber:'').
-			"&card.holder=" .(!empty($syncParam->cardHolder)?$syncParam->cardHolder:'').
-			"&card.expiryMonth=" .(!empty($syncParam->cardExpiryMonth)?$syncParam->cardExpiryMonth:'').
-			"&card.expiryYear=" .(!empty($syncParam->cardExpiryYear)?$syncParam->cardExpiryYear:'').
-			"&card.cvv=".(!empty($syncParam->cardcvv)?$syncParam->cardcvv:'');
-		$result = $this->curl_request($url, 'POST', false, $data);
+		$url = $url?$url:$this->url;
+		
+		$data = http_build_query($syncParam);
 
-		return $result;	
-    }
+		if($isPostRequest)
+			return $this->curl_request($url, $isPostRequest, false, $data);
+		else{
 
-   /**
-	* Method for deleting the stored payment data
-	* Once stored, a token can be deleted using the HTTP DELETE method against the registration.id: 
-	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
-	* @param int registrationId
-    */
-    public function deleteToken($syncParam) {
-    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId;
-
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-		$url .= "?authentication.userId=".$syncParam->userId;
-		$url .= "&authentication.password=".$syncParam->password;
-		$url .= "&authentication.entityId=".$syncParam->entityId;
-		return $this->curl_request($url, 'GET', 'deleteToken');
+			$url = $url."?".$data;
+			return $this->curl_request($url, $isPostRequest, $requestType);
+		}
 	}
 
-	/**
-	* Send payment method
-	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
-	* @param float amount
-	* @param string currency
-	* @param string paymentType
-	* @param int registrationId
-	*/
-	public function OneClickSendPayment($syncParam) {
-    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam->registrationId."/payments";
-
-		//set basic configuration variables
-		$this->setRequestObject($syncParam);
-	   
-    	$data = "&currency=".(!empty($syncParam->currency)?$syncParam->currency:'').
-    		"&authentication.userId=" .$syncParam->userId.
-            "&authentication.password=" .$syncParam->password.
-            "&authentication.entityId=" .$syncParam->entityId.
-            "&amount=".(!empty($syncParam->amount)?$syncParam->amount:'').
-            "&paymentType=" .(!empty($syncParam->paymentType)?$syncParam->paymentType:"");
-		return $this->curl_request($url, 'POST', false, $data);
-	}
 
     /**
 	* Method to create token of user's credit card without making payment
@@ -363,12 +169,18 @@ The next step is to redirect the account holder. To do this you must parse the '
     */
     public function createTokenWithOutPayment($syncParam=false){
 		$this->checkIfVariablesExist($syncParam);
-		$responseJson = $this->storeStandAloneData($syncParam);
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations";
+    	$syncParam = $this->filterTokenWithoutPaymentParams($syncParam);
+    	$syncParam = $this->removeId($syncParam);
+    	//proceed to create token
+    	$responseJson = $this->curlConnect($syncParam,true, $url);
+    	//get response
 		$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 
 		return $result;
 	}
+
 
 	/**
 	* Method to make call for deleting the already existing user token
@@ -381,8 +193,19 @@ The next step is to redirect the account holder. To do this you must parse the '
 	*/
 	public function makeDeleteTokenRequest($syncParam=false){
 		$this->checkRegistrationId($syncParam);
-		$responseJson = $this->deleteToken($syncParam);
-
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam['registrationId'];
+    	//filter request parameters
+    	$syncParam = $this->filterAsyncPaymentParams($syncParam);
+		$syncParam = $this->removeAmount($syncParam);
+		$syncParam = $this->removeCurrency($syncParam);
+		$syncParam = $this->removeRegistrationId($syncParam);
+		$syncParam = $this->removeReturnUrl($syncParam);
+		$syncParam = $this->removePaymentBrand($syncParam);
+		$syncParam = $this->removePaymentType($syncParam);
+		$syncParam = $this->removeId($syncParam);
+		//proceed to delete token
+		$responseJson = $this->curlConnect($syncParam, false, $url, 'deleteToken');
+		//get response
 		$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 
@@ -427,7 +250,15 @@ The next step is to redirect the account holder. To do this you must parse the '
 	public function makeOneClickPayment($param=false){
 		//validate method related parameters
 		$this->CheckRegistrationId($param);
-		$responseJson = $this->OneClickSendPayment($param);	
+    	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$param['registrationId']."/payments";
+		
+		//filter request parameters
+    	$param = $this->removeRegistrationId($param);
+    	$param = $this->filterRecurringPaymentParams($param);
+    	$param = $this->removeId($param);
+    	//proced to payment resquest
+    	$responseJson = $this->curlConnect($param,true, $url);
+    	//get response
 		$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 
@@ -453,7 +284,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	public function createTokenWithPayment($syncParam=false){
 		$this->checkIfVariablesExist($syncParam);
 		//set createRegistration true to initiate token registration
-		$syncParam->createRegistration = true;
+		$syncParam['createRegistration'] = true;
+		//filter request parameters
+		$syncParam = $this->removeRegistrationId($syncParam);
+		$syncParam = $this->removeId($syncParam);
+		//proceed to payment request
 		$response = $this->makeSyncPayments($syncParam);	
 		return $response;
 	}
@@ -481,8 +316,12 @@ The next step is to redirect the account holder. To do this you must parse the '
 	public function createTokenWithInitialRecurringPayment($syncParam=false){
 		$this->checkIfVariablesExist($syncParam);
 		//set createRegistration true to initiate token registration
-		$syncParam->createRegistration = true;
-		$syncParam->recurringType = 'INITIAL';
+		$syncParam['createRegistration'] = true;
+		$syncParam['recurringType'] = 'INITIAL';
+		//filter request parameters
+		$syncParam = $this->removeId($syncParam);
+		$syncParam = $this->removeRegistrationId($syncParam);
+		//proceed to payment request
 		$response = $this->makeSyncPayments($syncParam);	
 		return $response;	
 	}
@@ -495,21 +334,24 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string password
 	* @param float amount
 	* @param string currency
-	* @param string paymentBrand
 	* @param string paymentType
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param string cardcvv
-	*/
+*/
 	public function requestRecurringPaymentWithToken($syncParam=false){
-		$this->checkIfVariablesExist($syncParam);
+		$this->checkRegistrationId($syncParam);
 		//for making recurring payment repeat
-		$syncParam->recurringType = 'REPEATED';
-		$response = $this->makeSyncPayments($syncParam);	
+		$syncParam['recurringType'] = 'REPEATED';
+		//filter request parameters
+		$syncParam = $this->filterRecurringPaymentParams($syncParam);
+		$syncParam = $this->removeId($syncParam);
+
+		$url = $this->getEndpoint().$this->getVersion()."/registrations/".$syncParam['registrationId']."/payments";
+		//filter request parameters
+		$syncParam = $this->removeRegistrationId($syncParam);
+		//proceed to the payment request
+		$response = $this->makeSyncPayments($syncParam, $url);	
 		return $response;
 	}
+
 
 	/**
 	* Method for making payment in a single step using server-to-server and receive the payment response synchronously.
@@ -529,6 +371,11 @@ The next step is to redirect the account holder. To do this you must parse the '
 	*/
 	public function requestSyncPayment($syncParam=false){
 		$this->checkIfVariablesExist($syncParam);
+		//filter request parameters
+		$syncParam = $this->removeRegistrationId($syncParam);
+		$syncParam = $this->removeId($syncParam);
+
+		//proceed to the sync payment
 		$response = $this->makeSyncPayments($syncParam);	
 		return $response;	
 	}
@@ -560,30 +407,41 @@ The next step is to redirect the account holder. To do this you must parse the '
 	* @param string id
 	*/
 	public function requestPaymentStatus($syncParam){
-		$this->ValidatePaymentStatus($param);
-		$response = $this->getAsyncPaymentStatus($param);
+		$this->ValidatePaymentStatus($syncParam);
+		//filter request parameters
+		$syncParam = $this->filterAsyncPaymentParams($syncParam);
+		$syncParam = $this->removeAmount($syncParam);
+		$syncParam = $this->removeCurrency($syncParam);
+		$syncParam = $this->removeRegistrationId($syncParam);
+		$syncParam = $this->removeReturnUrl($syncParam);
+		$syncParam = $this->removePaymentBrand($syncParam);
+		$syncParam = $this->removePaymentType($syncParam);
+		//get async payment status
+		$response = $this->getAsyncPaymentStatus($syncParam);
 		return $response;
 	}
-
 
 	/**
 	* Method to make payment and fetch results via Asynchronous Method
 	*
 	*/
     public function makeAsyncPayments($param){
-		$responseJson = $this->asynchronous_Step1($param);
+		$param = $this->filterAsyncPaymentParams($param);
+		$param = $this->removeId($param);
+		$responseJson = $this->curlConnect($param, true,false,false,true);
 		$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 		return $result;
     }
 
+
+
 	/**
 	* Method to make payment via Synchronous Method
 	*
 	*/
-    public function makeSyncPayments($param){
-    	$responseJson = $this->curl_Connect($param);
-    	
+    public function makeSyncPayments($param, $url = false){
+    	$responseJson = $this->curlConnect($param,true, $url);
     	$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 
@@ -594,9 +452,10 @@ The next step is to redirect the account holder. To do this you must parse the '
 	*	Method to capture payment status of Async payment
 	*/
     public function getAsyncPaymentStatus($param){
-    	$responseJson = $this->getAsynPaymentStatus($param);
+        $url = $this->url."/".$param['id'];
+    	$param = $this->removeId($param);
+    	$responseJson = $this->curlConnect($param,false, $url);
     	$response = json_decode($responseJson,true);
-
     	$response = new SimplepayResponse($responseJson);
     	$result = $response->getResponse();
 
@@ -611,7 +470,7 @@ The next step is to redirect the account holder. To do this you must parse the '
     public function checkRegistrationId($params){
 		
 		$this->checkIfVariablesExist($params);
-		if ( empty($params->registrationId) ) {
+		if ( empty($params['registrationId']) ) {
 			throw new SimplepayException("Undefined or Missing registrationId");
 		}
 		else
@@ -641,12 +500,175 @@ The next step is to redirect the account holder. To do this you must parse the '
 	{	
 		$this->checkIfVariablesExist($params);
 
-		if( empty($params->id) ){
-			throw new SimplepayException("Undefined or Missing id");
+		if( empty($params['id']) ){
+			throw new SimplepayException("Parameter id not found");
 		}
 		else
 			return true;
 	}
 
+	/*
+	* Method to validate payment type for synchronize payments
+	*/
+	public function ValidateSyncPaymentBrand($paymentBrand){
+		$paymentBrand = strtoupper($paymentBrand);
+		if(in_array($paymentBrand, $this->validSyncPaymentBrand) ){
+			return array("result"=>true,"paymentBrand"=>$paymentBrand);
+		}
+		else
+			return array("result"=>false,"paymentBrand"=>$paymentBrand,"errorCode"=>"","message"=>"Invalid Payment Brand");
+	}
+
+	/*
+	* Method to validate payment type for synchronize payments
+	*/
+	public function ValidateAsyncPaymentBrand($paymentBrand){
+		$paymentBrand = strtoupper($paymentBrand);
+		if(in_array($paymentBrand, $this->validAsyncPaymentBrand) ){
+			return array("result"=>true,"paymentBrand"=>$paymentBrand);
+		}
+		else
+			return array("result"=>false,"paymentBrand"=>$paymentBrand,"errorCode"=>"","message"=>"Invalid Payment Brand");
+	}
+
+
+
+	/* -------- Filters -------- */
+
+	/**
+	* Method to remove card information and createRegistration element from Request Array Elements
+	*/
+	public function filterAsyncPaymentParams($syncParam = false){
+		if(!empty($syncParam['card.number']))
+			unset($syncParam['card.number']);
+
+		if(!empty($syncParam['card.cvv']))
+			unset($syncParam['card.cvv']);
+
+		if(!empty($syncParam['card.holder']))
+			unset($syncParam['card.holder']);
+
+		if(!empty($syncParam['card.expiryYear']))
+			unset($syncParam['card.expiryYear']);
+
+		if(!empty($syncParam['card.expiryMonth']))
+			unset($syncParam['card.expiryMonth']);
+
+		if(!empty($syncParam['createRegistration']))
+			unset($syncParam['createRegistration']);
+
+		$syncParam = $this->removeRegistrationId($syncParam);
+		return $syncParam;
+    }
+
+    /**
+	* Method to amount element from Request Array Elements
+	*/
+	public function removeAmount($param = false){
+		if(!empty($param['amount']))
+			unset($param['amount']);
+
+		return $param;
+	}
+
+	/**
+	* Method to remove currency element from Request Array Elements
+	*/
+	public function removeCurrency($param = false){
+		if(!empty($param['currency']))
+			unset($param['currency']);
+		
+		return $param;
+	}
+
+	/**
+	* Method to remove payment type from Request Array Elements
+	*/
+	public function removePaymentType($param = false){
+		if(!empty($param['paymentType']))
+			unset($param['paymentType']);
+		
+		return $param;
+	}
+
+	/**
+	* Method to remove id element from Request Array Elements
+	*/
+	public function removeId($param = false){
+		if(!empty($param['id']))
+			unset($param['id']);
+		
+		return $param;
+	}
+
+	/**
+	* Method to remove paymentBrand element from Request Array Elements
+	*/
+	public function removePaymentBrand($param = false){
+		if(!empty($param['paymentBrand']))
+			unset($param['paymentBrand']);
+		
+		return $param;
+	}
+
+	/**
+	* Method to remove return url element from Request Array Elements
+	*/
+	public function removeReturnUrl($param = false){
+		if(!empty($param['shopperResultUrl']))
+			unset($param['shopperResultUrl']);
+		
+		return $param;
+	}
+
+	/**
+	* Method to filter params for createTokenWithoutPayment Method
+	*/
+	public function filterTokenWithoutPaymentParams($syncParam = false)
+	{
+		if(!empty($syncParam['paymentType']))
+			unset($syncParam['paymentType']);
+	
+		$syncParam = $this->removeRegistrationId($syncParam);
+		
+		return $syncParam;
+	}
+
+	/*
+	* Method to filter parameter array for requestRecurringPaymentWithToken Method
+	*/
+	public function filterRecurringPaymentParams($syncParam = false)
+	{
+		if(!empty($syncParam['card.number']))
+			unset($syncParam['card.number']);
+
+		if(!empty($syncParam['card.cvv']))
+			unset($syncParam['card.cvv']);
+
+		if(!empty($syncParam['card.holder']))
+			unset($syncParam['card.holder']);
+
+		if(!empty($syncParam['card.expiryYear']))
+			unset($syncParam['card.expiryYear']);
+
+		if(!empty($syncParam['card.expiryMonth']))
+			unset($syncParam['card.expiryMonth']);
+
+		if(!empty($syncParam['createRegistration']))
+			unset($syncParam['createRegistration']);
+
+		$syncParam = $this->removePaymentBrand($syncParam);
+
+		return $syncParam;
+	}
+
+	/**
+	* Method to remove registrationId element from Request Array Elements
+	*/
+	public function removeRegistrationId($syncParam = false){
+		if(!empty($syncParam['registrationId']))
+			unset($syncParam['registrationId']);
+		return $syncParam;
+	}
 }
 ?>

@@ -12,6 +12,7 @@ A simple laravel 5 server-to-server Simplepay payment gateway library.
 		'providers' => [
 	        // ...
 	        Mansa\Simplepay\SimplepayServiceProvider::class,
+	        Mansa\Simplepay\SimplepayRequestServiceProvider::class,
 	    ]
 
 3. Update the aliases in config/app.php
@@ -19,6 +20,7 @@ A simple laravel 5 server-to-server Simplepay payment gateway library.
 	    'aliases' => [
 	        // ...
 	        'Simplepay' => Mansa\Simplepay\Facade\Simplepay::class,
+		'SimplepayRequest'=>Mansa\Simplepay\Facade\SimplepayRequest::class,
 	    ]
 
 4. Add following line in composer.json in your project root only
@@ -48,26 +50,30 @@ NOTE: Make sure you have curl install in your system.
 Please find the example below:
 
  		//add name space in your controller
- 		use Simplepay
+		use Simplepay;
+		use SimplepayRequest;
 
  		//In controller action, add the following code
 
 		//Get the request object, this is going to hold all your parameters
-		$obj=Simplepay::setObj();
-
-		//add parameters
-		$obj->currency = "USD";
-		$obj->paymentBrand = "VISA";
-		$obj->paymentType = "DB";
-		$obj->amount = "92.00";
-		$obj->cardNumber = "4200000000000000";
-		$obj->cardHolder = "Mr. Abc";
-		$obj->cardcvv = "125";
-		$obj->cardExpiryMonth = "02";
-		$obj->cardExpiryYear = "2019";
+		$requestArr = array(
+		      	'currency'=>'USD',
+			'card.number'=>4200000000000000,
+			'card.expiryMonth'=>'02',
+			'card.expiryYear'=>'2019',
+			'card.holder'=>"Mr. ABC",
+			'card.cvv'=>123,
+			'paymentBrand'=>'VISA',//'CHINAUNIONPAY',
+			'amount'=>'10.00',
+			'paymentType'=>'DB',
+		      );
+		
+		//call SimplepayRequest and set the parameters
+		SimplepayRequest::setParams($requestArr);
+        	$getParams =  SimplepayRequest::getParams();
 
 		//Now we are ready to make our call, this is going to make your direct payment in simplepay gateway
-		$result = simplepay::requestSyncPayment($obj);
+		 $result = Simplepay::requestSyncPayment($getParams);
 
 		//Here you can check the response returned by simplepay gateway
 		var_dump($result);
@@ -177,48 +183,39 @@ Method details:
 
 1. createTokenWithPayment:
 
- Method to create token and make payment synchronously.
+ Method to create token or register user's credit card and make payment synchronously. Parameter "registrationId" in response  is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentBrand
 	* @param string paymentType
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param string cardcvv
+	* @param int card.number
+	* @param string card.holder
+	* @param string card.expiryMonth
+	* @param int card.expiryYear
+	* @param string card.cvv
 
 
 2. createTokenWithoutPayment:
 
 
- Method to create token of user's credit card without making payment
+ Method to create token or register user's credit card without making payment. Parameter "registrationId" in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
-	* @param string userId
-	* @param string password
-	* @param string entityId
 	* @param string paymentBrand
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param int cardcvv
+	* @param int card.number
+	* @param string card.holder
+	* @param string card.expiryMonth
+	* @param int card.expiryYear
+	* @param string card.cvv
 
 
 3. makeOneClickPayment:
 
- Method to make payment in One Click
+ Method to make payment in One Click. Parameter 'registrationId' can be fetched using token registration methods (response variable 'registrationId' can be used). 
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentType
@@ -232,17 +229,17 @@ Method details:
 	3. Send Payment
 
 	Step 1: Authenticate user
-		You will need a method to authenticate the customer against your records in order to obtain their respective registration.id (token) associated with their account.  This can be achieved by asking the customer to log in for example, however you may find other ways that are applicable to your system.
+	You will need a method to authenticate the customer against your records in order to obtain their respective registration.id (token) associated with their account.  This can be achieved by asking the customer to log in for example, however you may find other ways that are applicable to your system.
 
-		The information that you might want to store, per customer, in order to execute a One-Click payment includes:
+	The information that you might want to store, per customer, in order to execute a One-Click payment includes:
 
-		    registrationId (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
-		    account brand: brand of customer's card 
-		    last four digits of account number
-		    expiry date (if applicable)
+	    registrationId (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
+	    account brand: brand of customer's card 
+	    last four digits of account number
+	    expiry date (if applicable)
 
 	Step 2: Show Checkout Form:
-		Create a form, to show user's all stored cards (You need to create form similar to this  https://docs.simplepays.com/sites/default/files/one-click-checkout.png) and show the list of all the cards you have stored. You can take example of html from page "https://docs.simplepays.com/tutorials/server-to-server/one-click-payment-guide".
+	Create a form, to show user's all stored cards (You need to create form similar to this  https://docs.simplepays.com/sites/default/files/one-click-checkout.png) and show the list of all the cards you have stored. You can take example of html from page "https://docs.simplepays.com/tutorials/server-to-server/one-click-payment-guide".
 
 	Step 3: Send Payment
 	 	When user click on pay button use method 'makeOneClickPayment' with the mentioned paramteres to complete the payment procedure.
@@ -250,13 +247,9 @@ Method details:
 
 4. makeDeleteTokenRequest:
 
- Method to make call for deleting the already existing user token
- Once stored, a token can be deleted using the registration.id: 
+ Method to make call for deleting the already existing user token Once stored, a token can be deleted using the 'registrationId'. Parameter 'registrationId' can be fetched using token registration methods (response variable 'registrationId' can be used). 
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param int registrationId
 
 
@@ -266,18 +259,16 @@ Method details:
  Method for making payment in a single step using server-to-server and receive the payment response synchronously.
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentBrand
 	* @param string paymentType
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param string cardcvv
+	* @param int card.number
+	* @param string card.holder
+	* @param string card.expiryMonth
+	* @param int card.expiryYear
+	* @param string card.cvv
+
 
 
 6. requestAsyncPayment:
@@ -285,9 +276,6 @@ Method details:
  Method to request for sending Initial Payment Request via Async method. 
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentBrand
@@ -295,53 +283,47 @@ Method details:
 	* @param string paymentType
 
 
+
 7.requestPaymentStatus:
 
-Method to make request for payment status of both Async and Sync payments
+Method to make request for payment status. Parameter 'id' can be fetched using token registration methods (response variable 'id' or 'registration' can be used). 
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param string id
 
 
 8. createTokenWithInitialRecurringPayment:
 
-Method to create token and make payment synchronously. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id.
+Method to create token or register user's credit card and make payment synchronously. This method also initialize payment for recurring payment. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id. Parameter "registrationId"  in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentBrand
 	* @param string paymentType
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param string cardcvv
+	* @param int card.number
+	* @param string card.holder
+	* @param string card.expiryMonth
+	* @param int card.expiryYear
+	* @param string card.cvv
+
 
 
 9. requestRecurringPaymentWithToken:
 
-Method to create token and make payment synchronously.
+Method to create token and make payment synchronously. This method also used for making repeatative recurring payments.
 
 	* Requires:
-	* @param string userId
-	* @param string entityId
-	* @param string password
 	* @param float amount
 	* @param string currency
 	* @param string paymentBrand
 	* @param string paymentType
-	* @param int cardNumber
-	* @param string cardHolder
-	* @param int cardExpiryMonth
-	* @param int cardExpiryYear
-	* @param string cardcvv
+	* @param int card.number
+	* @param string card.holder
+	* @param string card.expiryMonth
+	* @param int card.expiryYear
+	* @param string card.cvv
+	* @param string registrationId
 
 
 How simplepay works: https://docs.simplepays.com/tutorials/server-to-server
