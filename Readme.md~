@@ -183,7 +183,7 @@ Method details:
 
 1. createTokenWithPayment:
 
- Method to create token or register user's credit card and make payment synchronously.
+ Method to create token or register user's credit card and make payment synchronously. Parameter "registrationId" in response  is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
 	* @param float amount
@@ -200,7 +200,7 @@ Method details:
 2. createTokenWithoutPayment:
 
 
- Method to create token or register user's credit card without making payment
+ Method to create token or register user's credit card without making payment. Parameter "registrationId" in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
 	* @param string paymentBrand
@@ -294,7 +294,7 @@ Method to make request for payment status. Parameter 'id' can be fetched using t
 
 8. createTokenWithInitialRecurringPayment:
 
-Method to create token or register user's credit card and make payment synchronously. This method also initialize payment for recurring payment. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id. Parameter "registrationId" is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
+Method to create token or register user's credit card and make payment synchronously. This method also initialize payment for recurring payment. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id. Parameter "registrationId"  in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
 	* Requires:
 	* @param float amount
