@@ -5,7 +5,7 @@ A simple laravel 5 server-to-server Simplepay payment gateway library.
 # Setps for installation:
 1. Use following command in your terminal to install this library. (Currently the library is in development mode):
 
-	composer require mansa/simplepay dev-master
+	`composer require mansa/simplepay dev-master`
 
 2. Update the poviders in config/app.php
 		
@@ -119,6 +119,7 @@ NOTE: You should be fully PCI compliant if you wish to perform an initial paymen
 - requestPaymentStatus
 - createTokenWithInitialRecurringPayment
 - requestRecurringPaymentWithToken
+- reverseSyncPayment
 
 # Supported Brands
 This library support only following brands:
@@ -181,7 +182,7 @@ NOTE: You should be fully PCI compliant if you wish to perform tokenization requ
 
 Method details:
 
-1. createTokenWithPayment:
+1. `createTokenWithPayment`:
 
  Method to create token or register user's credit card and make payment synchronously. Parameter "registrationId" in response  is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
@@ -197,7 +198,7 @@ Method details:
 * @param string card.cvv
 
 
-2. createTokenWithoutPayment:
+2. `createTokenWithoutPayment`:
 
 
  Method to create token or register user's credit card without making payment. Parameter "registrationId" in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
@@ -211,7 +212,7 @@ Method details:
 * @param string card.cvv
 
 
-3. makeOneClickPayment:
+3. `makeOneClickPayment`:
 
  Method to make payment in One Click. Parameter 'registrationId' can be fetched using token registration methods (response variable 'registrationId' can be used). 
 
@@ -245,7 +246,7 @@ Method details:
 	 	When user click on pay button use method 'makeOneClickPayment' with the mentioned paramteres to complete the payment procedure.
 
 
-4. makeDeleteTokenRequest:
+4. `makeDeleteTokenRequest`:
 
  Method to make call for deleting the already existing user token Once stored, a token can be deleted using the 'registrationId'. Parameter 'registrationId' can be fetched using token registration methods (response variable 'registrationId' can be used). 
 
@@ -253,7 +254,7 @@ Method details:
 * @param int registrationId
 
 
-5. requestSyncPayment:
+5. `requestSyncPayment`:
 
 
  Method for making payment in a single step using server-to-server and receive the payment response synchronously.
@@ -271,7 +272,7 @@ Method details:
 
 
 
-6. requestAsyncPayment:
+6. `requestAsyncPayment`:
 
  Method to request for sending Initial Payment Request via Async method. 
 
@@ -292,7 +293,7 @@ Method to make request for payment status. Parameter 'id' can be fetched using t
 * @param string id
 
 
-8. createTokenWithInitialRecurringPayment:
+8. `createTokenWithInitialRecurringPayment`:
 
 Method to create token or register user's credit card and make payment synchronously. This method also initialize payment for recurring payment. This API is going to return you token id in "id" array variable. You need to store this "id" for future reference, to know your payment status or deleting token you are going to use this token id. Parameter "registrationId"  in response is used for various methods for making recurring payments and same is used as 'id' for getting payment status.
 
@@ -309,7 +310,7 @@ Method to create token or register user's credit card and make payment synchrono
 
 
 
-9. requestRecurringPaymentWithToken:
+9. `requestRecurringPaymentWithToken`:
 
 Method to create token and make payment synchronously. This method also used for making repeatative recurring payments.
 
@@ -324,6 +325,17 @@ Method to create token and make payment synchronously. This method also used for
 * @param int card.expiryYear
 * @param string card.cvv
 * @param string registrationId
+
+
+10. `reverseSyncPayment`:
+
+Method to reverse payment
+
+* Requires:
+* @param string paymentType (RV | RF)
+* @param string id
+
+
 
 
 How simplepay works: https://docs.simplepays.com/tutorials/server-to-server

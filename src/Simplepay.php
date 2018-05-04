@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace Mansa\Simplepay;
 
 use Mansa\Simplepay\Exceptions\SimplepayException;
@@ -8,7 +8,7 @@ use Mansa\Simplepay\SimplepayRequest;
 use BadMethodCallException;
 
 class Simplepay{
-	
+
 	protected $testEndpoint;
 	protected $liveEndpoint;
 	protected $version;
@@ -43,7 +43,7 @@ class Simplepay{
         $this->endpoint = $this->env == 'live'?$this->liveEndpoint:$this->testEndpoint;
 		return $this->endpoint;
 	}
-	
+
 	public function getAPIVersion(){
 		return $this->version;
 	}
@@ -85,9 +85,9 @@ class Simplepay{
 		return $this->api_ = $api_url;
 	}
 	public function setEnvironment($environment){
-		return $this->env = $environment; //live or 
+		return $this->env = $environment; //live or
 	}
-	
+
     /**
 	* Method to make curl requests using post & get methods
 	* Requires:
@@ -102,8 +102,14 @@ class Simplepay{
 		if(!$isPostRequest)
 		{
 			$request =  'GET';
-			if($requestType == 'deleteToken')
+			if($requestType == 'deleteToken') {
     			$request = 'DELETE';
+			}
+
+			if($requestType !== false) {
+				$request = $requestType;
+			}
+
 
     		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request);
 		}
@@ -111,7 +117,7 @@ class Simplepay{
 			curl_setopt($ch, CURLOPT_POST, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		}
-   	
+
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->ssl_verifier);// this should be set to true in production
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -127,12 +133,12 @@ class Simplepay{
 	* dynamically set parameters for curl call
 	*/
 	public function curlConnect($syncParam, $isPostRequest, $url = false, $requestType = false, $asyncValidate = false){
-		
+
 		if(!empty($syncParam['paymentBrand'])){
 		    //check if the payment brand is valid
 		    if($isPostRequest && !$asyncValidate)
 		    	$isValid = $this->ValidateSyncPaymentBrand($syncParam['paymentBrand']);
-		    else 
+		    else
 		    	$isValid = $this->ValidateAsyncPaymentBrand($syncParam['paymentBrand']);
 
 		     //if not valie payment brand then show error
@@ -141,7 +147,7 @@ class Simplepay{
 		}
 
 		$url = $url?$url:$this->url;
-		
+
 		$data = http_build_query($syncParam);
 
 		if($isPostRequest)
@@ -184,7 +190,7 @@ class Simplepay{
 
 	/**
 	* Method to make call for deleting the already existing user token
-	* Once stored, a token can be deleted against the registration.id: 
+	* Once stored, a token can be deleted against the registration.id:
 	* Requires:
 	* @param string userId
 	* @param string entityId
@@ -213,7 +219,7 @@ class Simplepay{
 	}
 
 	/*
-	* One-Click payment : 
+	* One-Click payment :
 		This method reqires 3 steps:
 		1. Authenticate user
 		2. Show Checkout
@@ -225,7 +231,7 @@ class Simplepay{
 			The information that you might want to store, per customer, in order to execute a One-Click payment includes:
 
 			    registration.id (token): You can use 'createTokenWithOutPayment' method to store customer's card details (without making paymnet) or use 'makeSyncPayments' method, and set createRegistration to true, to get the registrationId for user's card.
-			    account brand: brand of customer's card 
+			    account brand: brand of customer's card
 			    last four digits of account number
 			    expiry date (if applicable)
 
@@ -235,7 +241,7 @@ class Simplepay{
 		Step 3: Send Payment
 		 	When user click on pay button use method 'makeOneClickPayment' with the mentioned paramteres to complete the payment procedure.
 	*/
-	
+
 	/**
 	* Method to make payment in One Click
 	* Requires:
@@ -251,7 +257,7 @@ class Simplepay{
 		//validate method related parameters
 		$this->CheckRegistrationId($param);
     	$url = $this->getEndpoint().$this->getVersion()."/registrations/".$param['registrationId']."/payments";
-		
+
 		//filter request parameters
     	$param = $this->removeRegistrationId($param);
     	$param = $this->filterRecurringPaymentParams($param);
@@ -289,7 +295,7 @@ class Simplepay{
 		$syncParam = $this->removeRegistrationId($syncParam);
 		$syncParam = $this->removeId($syncParam);
 		//proceed to payment request
-		$response = $this->makeSyncPayments($syncParam);	
+		$response = $this->makeSyncPayments($syncParam);
 		return $response;
 	}
 
@@ -322,8 +328,8 @@ class Simplepay{
 		$syncParam = $this->removeId($syncParam);
 		$syncParam = $this->removeRegistrationId($syncParam);
 		//proceed to payment request
-		$response = $this->makeSyncPayments($syncParam);	
-		return $response;	
+		$response = $this->makeSyncPayments($syncParam);
+		return $response;
 	}
 
 	/**
@@ -348,7 +354,7 @@ class Simplepay{
 		//filter request parameters
 		$syncParam = $this->removeRegistrationId($syncParam);
 		//proceed to the payment request
-		$response = $this->makeSyncPayments($syncParam, $url);	
+		$response = $this->makeSyncPayments($syncParam, $url);
 		return $response;
 	}
 
@@ -376,8 +382,8 @@ class Simplepay{
 		$syncParam = $this->removeId($syncParam);
 
 		//proceed to the sync payment
-		$response = $this->makeSyncPayments($syncParam);	
-		return $response;	
+		$response = $this->makeSyncPayments($syncParam);
+		return $response;
 	}
 
 	/**
@@ -394,7 +400,7 @@ class Simplepay{
 	*/
 	public function requestAsyncPayment($syncParam=false){
 		$this->checkIfVariablesExist($syncParam);
-		$response = $this->makeAsyncPayments($syncParam);	
+		$response = $this->makeAsyncPayments($syncParam);
 		return $response;
 	}
 
@@ -448,6 +454,21 @@ class Simplepay{
 		return $result;
     }
 
+
+    /**
+	* Method to abort payment via Synchronous Method
+	* @param $id string|integer. Unique id for payment system
+	*/
+    public function reverseSyncPayment($param, $id){
+        $url = $this->url."/".$id;
+
+    	$responseJson = $this->curlConnect($param,true, $url, 'POST');
+    	$response = new SimplepayResponse($responseJson);
+    	$result = $response->getResponse();
+
+		return $result;
+    }
+
 	/*
 	*	Method to capture payment status of Async payment
 	*/
@@ -461,14 +482,14 @@ class Simplepay{
 
 		return $result;
     }
-    
+
     /* ---- Validate Methods -- */
 
 	/**
 	* Method to check if registrationId is present used in token APIs
 	*/
     public function checkRegistrationId($params){
-		
+
 		$this->checkIfVariablesExist($params);
 		if ( empty($params['registrationId']) ) {
 			throw new SimplepayException("Undefined or Missing registrationId");
@@ -497,7 +518,7 @@ class Simplepay{
 	* Method to validate payment status API
 	*/
 	public function ValidatePaymentStatus($params)
-	{	
+	{
 		$this->checkIfVariablesExist($params);
 
 		if( empty($params['id']) ){
@@ -577,7 +598,7 @@ class Simplepay{
 	public function removeCurrency($param = false){
 		if(!empty($param['currency']))
 			unset($param['currency']);
-		
+
 		return $param;
 	}
 
@@ -587,7 +608,7 @@ class Simplepay{
 	public function removePaymentType($param = false){
 		if(!empty($param['paymentType']))
 			unset($param['paymentType']);
-		
+
 		return $param;
 	}
 
@@ -597,7 +618,7 @@ class Simplepay{
 	public function removeId($param = false){
 		if(!empty($param['id']))
 			unset($param['id']);
-		
+
 		return $param;
 	}
 
@@ -607,7 +628,7 @@ class Simplepay{
 	public function removePaymentBrand($param = false){
 		if(!empty($param['paymentBrand']))
 			unset($param['paymentBrand']);
-		
+
 		return $param;
 	}
 
@@ -617,7 +638,7 @@ class Simplepay{
 	public function removeReturnUrl($param = false){
 		if(!empty($param['shopperResultUrl']))
 			unset($param['shopperResultUrl']);
-		
+
 		return $param;
 	}
 
@@ -628,9 +649,9 @@ class Simplepay{
 	{
 		if(!empty($syncParam['paymentType']))
 			unset($syncParam['paymentType']);
-	
+
 		$syncParam = $this->removeRegistrationId($syncParam);
-		
+
 		return $syncParam;
 	}
 
